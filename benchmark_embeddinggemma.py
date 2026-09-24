@@ -1,3 +1,5 @@
+from src.runtime_device import get_device
+
 import json
 import time
 from pathlib import Path
@@ -42,7 +44,7 @@ doc_texts = [
 print("\nLoading model...")
 model = SentenceTransformer(
     MODEL,
-    device="mps",
+    device=get_device(),
     model_kwargs={
         "torch_dtype": torch.float32
     }

@@ -1,3 +1,5 @@
+from src.runtime_device import get_device
+
 import time
 import numpy as np
 from sentence_transformers import CrossEncoder
@@ -129,7 +131,7 @@ print("\nLoading reranker...")
 
 model = CrossEncoder(
     MODEL,
-    device="mps",
+    device=get_device(),
     max_length=512
 )
 

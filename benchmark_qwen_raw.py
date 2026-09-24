@@ -1,3 +1,5 @@
+from src.runtime_device import get_device
+
 import json
 import time
 from pathlib import Path
@@ -29,7 +31,7 @@ query_embeddings = np.load(
 print("Loading model...")
 model = SentenceTransformer(
     MODEL,
-    device="mps"
+    device=get_device()
 )
 model.max_seq_length = MAX_SEQ_LENGTH
 

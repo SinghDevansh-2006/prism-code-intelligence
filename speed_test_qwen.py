@@ -1,3 +1,5 @@
+from src.runtime_device import get_device
+
 import time
 from sentence_transformers import SentenceTransformer
 from src.data_loader import load_dev_benchmark
@@ -11,7 +13,7 @@ queries, corpus, _ = load_dev_benchmark()
 print("Loading model...")
 model = SentenceTransformer(
     MODEL,
-    device="mps"
+    device=get_device()
 )
 
 model.max_seq_length = 4096

@@ -1,0 +1,44 @@
+name: Linux CPU packaging
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build fresh CPU container
+        run: docker build -t prism-check .
+      - name: Test packaged routes without model credentials
+        run: |
+          docker run -d --name prism-check -p 8000:8000 prism-check
+          trap 'docker logs prism-check; docker rm -f prism-check' EXIT
+          python3 - <<'PYTHON'
+          import json, time, urllib.request
+          base = "http://127.0.0.1:8000"
+          for attempt in range(60):
+              try:
+                  with urllib.request.urlopen(base + "/health", timeout=2) as r:
+                      health = json.load(r)
+                  break
+              except OSError:
+                  time.sleep(1)
+          else:
+              raise RuntimeError("Server did not start")
+          assert health["device"] == "cpu"
+          assert health["reranker_enabled"] is False
+          with urllib.request.urlopen(base + "/") as r:
+              assert r.status == 200 and b"<html" in r.read().lower()
+          for route, query in [("exact_usage", "which files import math?"),
+                               ("structural", "which functions call range before print?")]:
+              req = urllib.request.Request(base + "/search", data=json.dumps({"query": query, "top_k": 3}).encode(), headers={"Content-Type": "application/json"})
+              with urllib.request.urlopen(req, timeout=60) as r:
+                  result = json.load(r)
+              assert result["plan"]["route"] == route and result["results"], result
+          print("CPU container packaging checks passed")
+          PYTHON

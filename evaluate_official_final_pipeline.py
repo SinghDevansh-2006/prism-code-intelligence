@@ -1,3 +1,5 @@
+from src.runtime_device import get_device
+
 import json
 import math
 import time
@@ -762,7 +764,7 @@ if pending_positions:
 
     reranker = CrossEncoder(
         RERANKER_MODEL,
-        device="mps",
+        device=get_device(),
         max_length=512,
     )
 

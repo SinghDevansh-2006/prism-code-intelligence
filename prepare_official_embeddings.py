@@ -1,3 +1,5 @@
+from src.runtime_device import get_device
+
 import gc
 import json
 import time
@@ -232,7 +234,7 @@ print("\nLoading EmbeddingGemma...")
 
 gemma = SentenceTransformer(
     "google/embeddinggemma-300m",
-    device="mps",
+    device=get_device(),
     model_kwargs={
         "torch_dtype": torch.float32
     },
@@ -441,7 +443,7 @@ print("\nLoading Qwen...")
 
 qwen = SentenceTransformer(
     "Qwen/Qwen3-Embedding-0.6B",
-    device="mps",
+    device=get_device(),
 )
 
 qwen.max_seq_length = 4096

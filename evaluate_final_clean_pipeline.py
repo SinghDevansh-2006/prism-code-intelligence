@@ -1,3 +1,5 @@
+from src.runtime_device import get_device
+
 import json
 import time
 from pathlib import Path
@@ -262,7 +264,7 @@ if missing_indices:
 
     model = CrossEncoder(
         MODEL,
-        device="mps",
+        device=get_device(),
         max_length=512
     )
 

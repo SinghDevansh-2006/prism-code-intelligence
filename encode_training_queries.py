@@ -1,3 +1,5 @@
+from src.runtime_device import get_device
+
 import json
 import time
 from pathlib import Path
@@ -86,7 +88,7 @@ else:
 
     model = SentenceTransformer(
         "google/embeddinggemma-300m",
-        device="mps",
+        device=get_device(),
         model_kwargs={
             "torch_dtype": torch.float32
         }
@@ -169,7 +171,7 @@ else:
 
     model = SentenceTransformer(
         "Qwen/Qwen3-Embedding-0.6B",
-        device="mps"
+        device=get_device()
     )
 
     model.max_seq_length = 4096

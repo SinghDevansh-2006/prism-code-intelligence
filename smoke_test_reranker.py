@@ -1,3 +1,5 @@
+from src.runtime_device import get_device
+
 import time
 
 import numpy as np
@@ -112,7 +114,7 @@ print("\nLoading reranker...")
 
 model = CrossEncoder(
     MODEL,
-    device="mps",
+    device=get_device(),
     max_length=512
 )
 
@@ -145,7 +147,7 @@ print("RERANKER SPEED RESULTS")
 print("=" * 72)
 
 print(f"Model:                 {MODEL}")
-print(f"Device:                mps")
+print(f"Device:                {get_device()}")
 print(f"Max length:            512")
 print(f"Pairs tested:          {len(pairs)}")
 print(f"Elapsed:               {elapsed:.2f} sec")
