@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "corpus_size": 5000,
+  "dense_retrieval": {
+    "embeddinggemma_weight": 0.65,
+    "qwen_weight": 0.35,
+    "embeddinggemma_model": "google/embeddinggemma-300m",
+    "qwen_model": "Qwen/Qwen3-Embedding-0.6B"
+  },
+  "confidence_gate": {
+    "type": "top1_top2_margin",
+    "threshold": 0.4298446416854859,
+    "threshold_source": "4000 training queries"
+  },
+  "reranking": {
+    "enabled": true,
+    "model": "mixedbread-ai/mxbai-rerank-xsmall-v1",
+    "top_k": 20,
+    "beta": 0.2,
+    "beta_source": "training-only low-confidence sample"
+  },
+  "output_top_k": 10,
+  "validation": {
+    "ndcg@10": 0.920441,
+    "mrr": 0.903767,
+    "recall@10": 0.974,
+    "recall@20": 0.984,
+    "recall@100": 0.993
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "evaluation": {
+    "task": "AppsRetrieval",
+    "split": "test",
+    "queries": 3765,
+    "candidate_documents": 8765,
+    "policy": "Report-only official evaluation. All hyperparameters frozen before official qrels were scored."
+  },
+  "dense": {
+    "embeddinggemma_weight": 0.65,
+    "qwen_weight": 0.35,
+    "metrics": {
+      "ndcg@10": 0.8531004170490744,
+      "mrr@10": 0.8218028415438774,
+      "mrr@100": 0.824137852135236,
+      "recall@10": 0.949535192563081,
+      "recall@20": 0.9734395750332006,
+      "recall@100": 0.9936254980079682,
+      "rank1_rate": 0.749800796812749
+    }
+  },
+  "confidence_gate": {
+    "threshold": 0.4298446416854859,
+    "source": "4000 training queries",
+    "queries_selected": 2007,
+    "fraction_selected": 0.5330677290836653
+  },
+  "reranker": {
+    "model": "mixedbread-ai/mxbai-rerank-xsmall-v1",
+    "top_k": 20,
+    "beta": 0.2,
+    "beta_source": "training-only low-confidence sample",
+    "pairs_scored": 40140
+  },
+  "final_metrics": {
+    "ndcg@10": 0.8529124532779334,
+    "mrr@10": 0.8211387255211964,
+    "mrr@100": 0.8233425092195827,
+    "recall@10": 0.950863213811421,
+    "recall@20": 0.9734395750332006,
+    "recall@100": 0.9936254980079682,
+    "rank1_rate": 0.7479415670650731
+  },
+  "delta_from_dense": {
+    "ndcg@10": -0.0001879637711409421,
+    "mrr@10": -0.0006641160226810161,
+    "mrr@100": -0.0007953429156533076,
+    "recall@10": 0.0013280212483399723,
+    "recall@20": 0.0,
+    "recall@100": 0.0,
+    "rank1_rate": -0.001859229747675939
+  }
+}

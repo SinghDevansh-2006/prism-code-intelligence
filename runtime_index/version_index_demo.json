@@ -1,0 +1,71 @@
+{
+  "similarity_threshold": 0.75,
+  "stats": {
+    "logical_snippets": 2,
+    "versions": 5,
+    "unchanged_versions": 1,
+    "near_duplicate_updates": 1,
+    "substantial_updates": 1
+  },
+  "lineages": {
+    "binary_search": [
+      {
+        "logical_id": "binary_search",
+        "version": "v1",
+        "title": "",
+        "language": "python",
+        "code": "\ndef binary_search(arr, target):\n    left = 0\n    right = len(arr) - 1\n\n    while left <= right:\n        mid = (left + right) // 2\n\n        if arr[mid] == target:\n            return mid\n\n        if arr[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n\n    return -1\n",
+        "metadata": {},
+        "fingerprint": "663d6eac637c67efbdffb068725135b5d56c1c3f6de7b82da493c984cb4e88d2",
+        "previous_similarity": null,
+        "change_type": "initial"
+      },
+      {
+        "logical_id": "binary_search",
+        "version": "v2",
+        "title": "",
+        "language": "python",
+        "code": "\ndef binary_search(arr, target):\n    lo = 0\n    hi = len(arr) - 1\n\n    while lo <= hi:\n        mid = (lo + hi) // 2\n\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n\n    return -1\n",
+        "metadata": {},
+        "fingerprint": "1b01ecbc20c6dc36cd336dc38c5334edfbb25a24941f0f139b9a2bb61101471e",
+        "previous_similarity": 0.7916666666666666,
+        "change_type": "near_duplicate_update"
+      },
+      {
+        "logical_id": "binary_search",
+        "version": "v3",
+        "title": "",
+        "language": "python",
+        "code": "\nfrom bisect import bisect_left\n\ndef binary_search(arr, target):\n    pos = bisect_left(arr, target)\n\n    if pos < len(arr) and arr[pos] == target:\n        return pos\n\n    return -1\n",
+        "metadata": {},
+        "fingerprint": "c746420eb70eb24ae701513196d4686ccfe279725f465504fe93fb682a55b6d7",
+        "previous_similarity": 0.39285714285714285,
+        "change_type": "substantial_update"
+      }
+    ],
+    "factorial": [
+      {
+        "logical_id": "factorial",
+        "version": "v1",
+        "title": "",
+        "language": "python",
+        "code": "\ndef factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)\n",
+        "metadata": {},
+        "fingerprint": "cd90607a90302b3468701b0938a58b288cb886835fc7f18fca661fda8b22ef73",
+        "previous_similarity": null,
+        "change_type": "initial"
+      },
+      {
+        "logical_id": "factorial",
+        "version": "v2",
+        "title": "",
+        "language": "python",
+        "code": "\ndef factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)\n",
+        "metadata": {},
+        "fingerprint": "cd90607a90302b3468701b0938a58b288cb886835fc7f18fca661fda8b22ef73",
+        "previous_similarity": 1.0,
+        "change_type": "unchanged"
+      }
+    ]
+  }
+}

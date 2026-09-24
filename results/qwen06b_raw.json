@@ -1,0 +1,11 @@
+{
+  "model": "Qwen/Qwen3-Embedding-0.6B",
+  "preprocessing": "none",
+  "metrics": {
+    "ndcg@10": 0.8201532740622263,
+    "mrr": 0.7931337756855973,
+    "recall@10": 0.913,
+    "recall@20": 0.94,
+    "recall@100": 0.975
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "evaluation": {
+    "task": "AppsRetrieval",
+    "split": "test",
+    "queries": 3765,
+    "candidate_documents": 8765,
+    "note": "Frozen architecture evaluated after all retrieval hyperparameters were selected on development data."
+  },
+  "frozen_fusion": {
+    "embeddinggemma_weight": 0.65,
+    "qwen_weight": 0.35
+  },
+  "embeddinggemma": {
+    "ndcg@10": 0.8440312668535478,
+    "mrr@10": 0.8110201521954512,
+    "mrr@100": 0.8136372568262841,
+    "recall@10": 0.9460823373173971,
+    "recall@20": 0.9734395750332006,
+    "recall@100": 0.9946879150066401,
+    "rank1_rate": 0.7370517928286853
+  },
+  "qwen": {
+    "ndcg@10": 0.6678518994916157,
+    "mrr@10": 0.6219841269841261,
+    "mrr@100": 0.6284462417635975,
+    "recall@10": 0.8130146082337317,
+    "recall@20": 0.8719787516600266,
+    "recall@100": 0.9580345285524569,
+    "rank1_rate": 0.5317397078353253
+  },
+  "fusion": {
+    "ndcg@10": 0.8535017769451794,
+    "mrr@10": 0.8223433251122495,
+    "mrr@100": 0.8246783357036082,
+    "recall@10": 0.949535192563081,
+    "recall@20": 0.9734395750332006,
+    "recall@100": 0.9936254980079682,
+    "rank1_rate": 0.750863213811421
+  },
+  "ranking_seconds": 1.7788808339973912
+}

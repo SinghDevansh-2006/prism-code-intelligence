@@ -1,0 +1,9 @@
+{
+  "source": "4000 training queries",
+  "percentile": 30,
+  "margin_threshold": 0.4298446416854859,
+  "validation_selected": 301,
+  "validation_selected_fraction": 0.301,
+  "top10_misses_captured": 24,
+  "rank11_20_captured": 10
+}

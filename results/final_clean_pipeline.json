@@ -1,0 +1,27 @@
+{
+  "dense_weights": {
+    "embeddinggemma": 0.65,
+    "qwen": 0.35
+  },
+  "confidence_threshold": 0.4298446416854859,
+  "confidence_threshold_source": "4000 training queries",
+  "reranker": "mixedbread-ai/mxbai-rerank-xsmall-v1",
+  "reranker_beta": 0.2,
+  "reranker_beta_source": "training-only low-confidence sample",
+  "rerank_top_k": 20,
+  "validation_queries_gated": 301,
+  "dense_baseline": {
+    "ndcg@10": 0.9177343456109247,
+    "mrr": 0.9003859837089659,
+    "recall@10": 0.973,
+    "recall@20": 0.984,
+    "recall@100": 0.993
+  },
+  "final_clean_pipeline": {
+    "ndcg@10": 0.9204409953231443,
+    "mrr": 0.9037667788340332,
+    "recall@10": 0.974,
+    "recall@20": 0.984,
+    "recall@100": 0.993
+  }
+}

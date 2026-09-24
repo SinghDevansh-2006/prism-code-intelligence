@@ -1,0 +1,16 @@
+{
+  "model": "Qwen/Qwen3-Embedding-0.6B",
+  "max_seq_length": 4096,
+  "batch_size": 8,
+  "code_preprocessing": "large_literal_compaction",
+  "validation_queries": 1000,
+  "corpus_size": 5000,
+  "metrics": {
+    "ndcg@10": 0.8215070774715316,
+    "mrr": 0.7945913899068513,
+    "recall@10": 0.914,
+    "recall@20": 0.94,
+    "recall@100": 0.98
+  },
+  "similarity_search_seconds": 0.02438737500051502
+}

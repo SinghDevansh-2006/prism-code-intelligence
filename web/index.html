@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  />
+
+  <title>PRISM Code Intelligence</title>
+
+  <style>
+    :root {
+      --bg: #080b12;
+      --panel: #101521;
+      --panel2: #151c2a;
+      --border: #263147;
+      --text: #f4f7fb;
+      --muted: #93a0b5;
+      --blue: #4d8dff;
+      --cyan: #62d9ff;
+      --green: #56d49b;
+      --orange: #ffb85c;
+      --red: #ff7474;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(
+          circle at 15% 0%,
+          #142341 0,
+          transparent 30%
+        ),
+        var(--bg);
+      color: var(--text);
+      font-family:
+        Inter,
+        ui-sans-serif,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    .shell {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 38px 24px 80px;
+    }
+
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+
+    .eyebrow {
+      color: var(--cyan);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 7px 0 7px;
+      font-size: clamp(32px, 5vw, 56px);
+      letter-spacing: -.045em;
+      line-height: 1;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      max-width: 720px;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .status {
+      border: 1px solid var(--border);
+      background: rgba(16,21,33,.85);
+      border-radius: 999px;
+      padding: 10px 14px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .status.ok {
+      color: var(--green);
+    }
+
+    .search-panel {
+      border: 1px solid var(--border);
+      background: rgba(16,21,33,.92);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 24px 70px rgba(0,0,0,.28);
+    }
+
+    .search-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    textarea {
+      flex: 1;
+      min-height: 68px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #090d15;
+      color: var(--text);
+      padding: 15px 16px;
+      font: inherit;
+      line-height: 1.45;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(77,141,255,.12);
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(
+        135deg,
+        var(--blue),
+        #725cff
+      );
+      color: white;
+      font-weight: 800;
+      padding: 0 24px;
+      cursor: pointer;
+      min-width: 128px;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
+
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: #0c111b;
+      color: #b9c5d8;
+      border-radius: 999px;
+      padding: 8px 11px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .chip:hover {
+      border-color: var(--blue);
+      color: white;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns:
+        repeat(4, minmax(0,1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      background: #0c111b;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .metric-value {
+      margin-top: 6px;
+      font-size: 20px;
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    .route-semantic {
+      color: var(--cyan);
+    }
+
+    .route-structural {
+      color: var(--orange);
+    }
+
+    .route-exact_usage {
+      color: var(--green);
+    }
+
+    .route-evolution {
+      color: #bd98ff;
+    }
+
+    .trace {
+      margin-top: 18px;
+      border: 1px solid var(--border);
+      background: #0c111b;
+      border-radius: 14px;
+      padding: 15px;
+    }
+
+    .trace-title {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 10px;
+    }
+
+    .steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .step {
+      border: 1px solid #2a3850;
+      background: #121a28;
+      color: #cad5e5;
+      padding: 7px 10px;
+      border-radius: 9px;
+      font-size: 12px;
+    }
+
+    .results {
+      margin-top: 24px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .result-card {
+      border: 1px solid var(--border);
+      background: rgba(16,21,33,.95);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .result-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 15px 17px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel2);
+    }
+
+    .result-title {
+      font-weight: 800;
+    }
+
+    .result-meta {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .score {
+      font-family: ui-monospace, monospace;
+      color: var(--cyan);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .evidence {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      padding: 12px 17px 0;
+    }
+
+    .evidence-item {
+      border-radius: 8px;
+      background: #192334;
+      color: #c5d4e8;
+      padding: 6px 8px;
+      font-size: 11px;
+    }
+
+    .timeline {
+      margin: 12px 17px 0;
+      padding: 11px;
+      border: 1px solid #303a50;
+      border-radius: 10px;
+      color: #c5d4e8;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    pre {
+      margin: 0;
+      padding: 17px;
+      overflow-x: auto;
+      background: #080b11;
+      color: #d6dfed;
+      font-family:
+        "SFMono-Regular",
+        Consolas,
+        monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      max-height: 420px;
+    }
+
+    .empty,
+    .error,
+    .loading {
+      margin-top: 22px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 15px;
+      padding: 18px;
+      color: var(--muted);
+    }
+
+    .error {
+      border-color: rgba(255,116,116,.4);
+      color: var(--red);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .footer-note {
+      margin-top: 22px;
+      color: #69768d;
+      font-size: 12px;
+    }
+
+    @media (max-width: 760px) {
+      .header,
+      .search-row {
+        flex-direction: column;
+      }
+
+      button {
+        min-height: 48px;
+        width: 100%;
+      }
+
+      .summary {
+        grid-template-columns:
+          repeat(2, minmax(0,1fr));
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+
+    <header class="header">
+      <div>
+        <div class="eyebrow">
+          Samsung PRISM · Agentic Code Intelligence
+        </div>
+
+        <h1>
+          Ask the repository.
+        </h1>
+
+        <div class="subtitle">
+          One local engine that routes natural-language questions
+          through semantic retrieval, AST-aware structural search,
+          exact usage lookup, and version-aware evolutionary retrieval.
+        </div>
+      </div>
+
+      <div
+        id="status"
+        class="status"
+      >
+        checking backend…
+      </div>
+    </header>
+
+
+    <section class="search-panel">
+
+      <div class="search-row">
+        <textarea
+          id="query"
+          placeholder="Describe the code you want to find…"
+        >Find code that validates a tic-tac-toe board state</textarea>
+
+        <button id="searchButton">
+          Search
+        </button>
+      </div>
+
+
+      <div class="examples">
+
+        <div
+          class="chip"
+          data-query="Find code that validates a tic-tac-toe board state"
+        >
+          Semantic
+        </div>
+
+        <div
+          class="chip"
+          data-query="which files import math?"
+        >
+          Exact usage
+        </div>
+
+        <div
+          class="chip"
+          data-query="which functions call range before print?"
+        >
+          Structural
+        </div>
+
+        <div
+          class="chip"
+          data-query="show binary search version history"
+        >
+          Evolution
+        </div>
+
+      </div>
+
+
+      <div
+        id="summary"
+        class="summary hidden"
+      ></div>
+
+
+      <div
+        id="trace"
+        class="trace hidden"
+      ></div>
+
+    </section>
+
+
+    <div
+      id="message"
+      class="hidden"
+    ></div>
+
+
+    <section
+      id="results"
+      class="results"
+    ></section>
+
+
+    <div class="footer-note">
+      Runs locally on the retrieval index.
+      No paid inference API is required.
+    </div>
+
+  </main>
+
+
+  <script>
+    const queryEl =
+      document.getElementById("query");
+
+    const button =
+      document.getElementById("searchButton");
+
+    const resultsEl =
+      document.getElementById("results");
+
+    const summaryEl =
+      document.getElementById("summary");
+
+    const traceEl =
+      document.getElementById("trace");
+
+    const messageEl =
+      document.getElementById("message");
+
+    const statusEl =
+      document.getElementById("status");
+
+
+    function esc(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+
+    function fmtScore(value) {
+      if (
+        value === null ||
+        value === undefined ||
+        Number.isNaN(Number(value))
+      ) {
+        return "—";
+      }
+
+      return Number(value).toFixed(4);
+    }
+
+
+    function evidenceHTML(evidence) {
+      if (
+        !Array.isArray(evidence) ||
+        evidence.length === 0
+      ) {
+        return "";
+      }
+
+      const items = evidence.map((item) => {
+        if (
+          typeof item !== "object" ||
+          item === null
+        ) {
+          return `
+            <span class="evidence-item">
+              ${esc(item)}
+            </span>
+          `;
+        }
+
+        const pieces = [];
+
+        if (item.type) {
+          pieces.push(item.type);
+        }
+
+        if (item.name) {
+          pieces.push(item.name);
+        }
+
+        if (item.line !== undefined) {
+          pieces.push(`line ${item.line}`);
+        }
+
+        if (item.function) {
+          pieces.push(`fn ${item.function}`);
+        }
+
+        if (item.class) {
+          pieces.push(`class ${item.class}`);
+        }
+
+        return `
+          <span class="evidence-item">
+            ${esc(pieces.join(" · ") || JSON.stringify(item))}
+          </span>
+        `;
+      });
+
+      return `
+        <div class="evidence">
+          ${items.join("")}
+        </div>
+      `;
+    }
+
+
+    function timelineHTML(timeline) {
+      if (
+        !Array.isArray(timeline) ||
+        timeline.length === 0
+      ) {
+        return "";
+      }
+
+      const rows = timeline.map((item) => {
+        const similarity =
+          item.previous_similarity === null ||
+          item.previous_similarity === undefined
+            ? ""
+            : ` · similarity ${Number(
+                item.previous_similarity
+              ).toFixed(3)}`;
+
+        return `
+          <div>
+            <strong>${esc(item.version)}</strong>
+            · ${esc(item.change_type)}
+            ${esc(similarity)}
+          </div>
+        `;
+      });
+
+      return `
+        <div class="timeline">
+          <strong>Evolution timeline</strong>
+          <div style="margin-top:7px">
+            ${rows.join("")}
+          </div>
+        </div>
+      `;
+    }
+
+
+    function renderResults(data) {
+      const route =
+        data.plan?.route || "unknown";
+
+      const execution =
+        data.execution || {};
+
+      const results =
+        Array.isArray(data.results)
+          ? data.results
+          : [];
+
+
+      const reranker =
+        execution.reranker_triggered === true
+          ? "Triggered"
+          : execution.reranker_triggered === false
+            ? "Skipped"
+            : "N/A";
+
+
+      summaryEl.innerHTML = `
+        <div class="metric">
+          <div class="metric-label">
+            Agent route
+          </div>
+          <div
+            class="metric-value route-${esc(route)}"
+          >
+            ${esc(route)}
+          </div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">
+            Router confidence
+          </div>
+          <div class="metric-value">
+            ${data.plan?.confidence !== undefined
+              ? `${(
+                  Number(data.plan.confidence) * 100
+                ).toFixed(0)}%`
+              : "—"}
+          </div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">
+            Total latency
+          </div>
+          <div class="metric-value">
+            ${Number(data.total_ms || 0).toFixed(1)} ms
+          </div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">
+            Reranker
+          </div>
+          <div class="metric-value">
+            ${esc(reranker)}
+          </div>
+        </div>
+      `;
+
+      summaryEl.classList.remove("hidden");
+
+
+      const steps =
+        Array.isArray(execution.steps)
+          ? execution.steps
+          : [];
+
+      traceEl.innerHTML = `
+        <div class="trace-title">
+          Agent execution trace
+        </div>
+
+        <div class="steps">
+          ${steps.map(
+            step => `
+              <span class="step">
+                ${esc(step)}
+              </span>
+            `
+          ).join("")}
+        </div>
+
+        <div
+          style="
+            margin-top:11px;
+            color:#8390a5;
+            font-size:12px;
+          "
+        >
+          Strategy:
+          <strong style="color:#cad5e5">
+            ${esc(execution.strategy || "—")}
+          </strong>
+
+          ${data.plan?.reason
+            ? ` · ${esc(data.plan.reason)}`
+            : ""}
+        </div>
+      `;
+
+      traceEl.classList.remove("hidden");
+
+
+      if (results.length === 0) {
+        resultsEl.innerHTML = `
+          <div class="empty">
+            No matching code was returned for this query.
+          </div>
+        `;
+        return;
+      }
+
+
+      resultsEl.innerHTML =
+        results.map((item, index) => {
+
+          const rank =
+            item.rank || index + 1;
+
+          const identity =
+            item.id ||
+            item.logical_id ||
+            "result";
+
+          const version =
+            item.version
+              ? ` · ${item.version}`
+              : "";
+
+          const title =
+            item.title ||
+            identity;
+
+          const language =
+            item.language ||
+            "Python";
+
+          const scope =
+            item.scope
+              ? ` · scope: ${item.scope}`
+              : "";
+
+          const change =
+            item.change_type
+              ? ` · ${item.change_type}`
+              : "";
+
+          return `
+            <article class="result-card">
+
+              <div class="result-head">
+                <div>
+                  <div class="result-title">
+                    #${rank}
+                    ${esc(title)}
+                    ${esc(version)}
+                  </div>
+
+                  <div class="result-meta">
+                    ${esc(identity)}
+                    · ${esc(language)}
+                    ${esc(scope)}
+                    ${esc(change)}
+                  </div>
+                </div>
+
+                <div class="score">
+                  score ${fmtScore(item.score)}
+                </div>
+              </div>
+
+              ${evidenceHTML(item.evidence)}
+
+              ${timelineHTML(item.timeline)}
+
+              <pre><code>${esc(item.code || "")}</code></pre>
+
+            </article>
+          `;
+        }).join("");
+    }
+
+
+    async function runSearch() {
+      const query =
+        queryEl.value.trim();
+
+      if (!query) {
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "Searching…";
+
+      resultsEl.innerHTML = "";
+
+      summaryEl.classList.add("hidden");
+      traceEl.classList.add("hidden");
+
+      messageEl.className = "loading";
+      messageEl.textContent =
+        "The agent is planning and executing the retrieval route…";
+
+
+      try {
+        const response = await fetch(
+          "/search",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+            body: JSON.stringify({
+              query,
+              top_k: 5
+            })
+          }
+        );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.detail ||
+            "Search request failed."
+          );
+        }
+
+        messageEl.className = "hidden";
+
+        renderResults(data);
+      }
+
+      catch (error) {
+        messageEl.className = "error";
+        messageEl.textContent =
+          error.message;
+      }
+
+      finally {
+        button.disabled = false;
+        button.textContent = "Search";
+      }
+    }
+
+
+    async function checkHealth() {
+      try {
+        const response =
+          await fetch("/health");
+
+        if (!response.ok) {
+          throw new Error();
+        }
+
+        const health =
+          await response.json();
+
+        statusEl.textContent =
+          "● backend ready";
+
+        statusEl.classList.add("ok");
+      }
+
+      catch {
+        statusEl.textContent =
+          "● backend unavailable";
+      }
+    }
+
+
+    button.addEventListener(
+      "click",
+      runSearch
+    );
+
+
+    queryEl.addEventListener(
+      "keydown",
+      event => {
+        if (
+          event.key === "Enter" &&
+          (event.metaKey || event.ctrlKey)
+        ) {
+          runSearch();
+        }
+      }
+    );
+
+
+    document
+      .querySelectorAll(".chip")
+      .forEach(chip => {
+        chip.addEventListener(
+          "click",
+          () => {
+            queryEl.value =
+              chip.dataset.query;
+
+            runSearch();
+          }
+        );
+      });
+
+
+    checkHealth();
+  </script>
+
+</body>
+</html>

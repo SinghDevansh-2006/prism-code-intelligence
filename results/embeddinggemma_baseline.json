@@ -1,0 +1,13 @@
+{
+  "model": "google/embeddinggemma-300m",
+  "max_seq_length": 2048,
+  "batch_size": 8,
+  "code_preprocessing": "large_literal_compaction",
+  "metrics": {
+    "ndcg@10": 0.8716241669911161,
+    "mrr": 0.8493386525120665,
+    "recall@10": 0.947,
+    "recall@20": 0.97,
+    "recall@100": 0.991
+  }
+}

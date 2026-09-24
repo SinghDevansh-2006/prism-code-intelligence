@@ -1,0 +1,13 @@
+{
+  "retriever": "BM25Okapi",
+  "tokenizer": "simple_code_aware_regex",
+  "preprocessing": "large_literal_compaction",
+  "metrics": {
+    "ndcg@10": 0.09218042927233097,
+    "mrr": 0.08673687176985205,
+    "recall@10": 0.135,
+    "recall@20": 0.186,
+    "recall@100": 0.377
+  },
+  "total_query_seconds": 102.29860058399936
+}

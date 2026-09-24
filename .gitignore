@@ -1,0 +1,30 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# macOS
+.DS_Store
+
+# Secrets / local config
+.env
+.env.*
+*.pem
+*.key
+
+# Logs / temporary files
+*.log
+/tmp/
+tmp/
+
+# Large experimental caches — reproducible, not needed for demo
+cache/
+
+# Large intermediate ranking dumps
+results/official_dense_top100.json
+results/official_final_top100_rankings.json
+
+# Editor files
+.vscode/
+.idea/
