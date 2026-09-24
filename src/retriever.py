@@ -14,7 +14,7 @@ class CodeRetriever:
     def __init__(
         self,
         index_dir="runtime_index",
-        device="mps",
+        device="cpu",
         enable_reranker=True,
         gemma_model=None,
     ):

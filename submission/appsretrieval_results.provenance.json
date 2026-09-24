@@ -1,0 +1,14 @@
+{
+  "method": "MTEB retrieval metric evaluation of saved rankings; not a new mteb.evaluate inference run",
+  "ranking_sha256": "519fe7b0ad8bb4ae80f1da5192ceea067bc1c68b74cad6328ee7ac8a2de644d4",
+  "mteb_version": "2.21.6",
+  "qrels_dataset": "CoIR-Retrieval/apps-qrels",
+  "qrels_revision": "a4fb4d92996bcfe1e0b0af9e97ea4b70b80ec9d5",
+  "qrels_source": "provided Arrow file",
+  "qrels_rows_sha256": "2daab57c11f55cf294ba0d1277b942a47ef55a7f455b621b1227bd99062c8c9c",
+  "score_semantics": "100 minus zero-based rank; confidence metrics omitted",
+  "evaluation_time_scope": "metric computation only, excludes inference and data loading",
+  "result_sha256": "87dfa6f7fdd1af00f707672940447e474b537890d2a966c20c8a1e4818e3fbc6",
+  "queries": 3765,
+  "retrieved_documents_per_query": 100
+}

@@ -32,7 +32,7 @@ class VersionedSemanticIndex:
     def __init__(
         self,
         root="runtime_index/versioned_semantic",
-        device="mps",
+        device="cpu",
         similarity_threshold=0.75,
         shared_model=None,
     ):

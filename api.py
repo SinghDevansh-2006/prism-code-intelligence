@@ -1,5 +1,8 @@
 import os
 import time
+from pathlib import Path
+
+import torch
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,16 +48,33 @@ app.add_middleware(
 # retrieval models are lazy-loaded only when their route is used.
 # ------------------------------------------------------------------
 
+ROOT = Path(__file__).resolve().parent
+DEVICE = os.environ.get("PRISM_DEVICE", "cpu").lower()
+if DEVICE not in {"cpu", "mps", "cuda"}:
+    raise ValueError("PRISM_DEVICE must be cpu, mps, or cuda")
+if DEVICE == "mps" and not torch.backends.mps.is_available():
+    raise RuntimeError("MPS is unavailable; use PRISM_DEVICE=cpu")
+if DEVICE == "cuda" and not torch.cuda.is_available():
+    raise RuntimeError("CUDA is unavailable; use PRISM_DEVICE=cpu")
+
 VERSION_INDEX_ROOT = os.environ.get(
     "PRISM_VERSION_INDEX",
-    "runtime_index/versioned_semantic_test",
+    str(ROOT / "runtime_index/versioned_semantic_test"),
 )
 
 
+ENABLE_RERANKER = (
+    os.environ.get(
+        "PRISM_ENABLE_RERANKER",
+        "0",
+    ).lower()
+    in {"1", "true", "yes"}
+)
+
 engine = AgenticCodeEngine(
-    index_dir="runtime_index",
-    device="mps",
-    enable_reranker=True,
+    index_dir=str(ROOT / "runtime_index"),
+    device=DEVICE,
+    enable_reranker=ENABLE_RERANKER,
     version_index_root=VERSION_INDEX_ROOT,
 )
 
@@ -86,7 +106,7 @@ class SearchRequest(BaseModel):
 @app.get("/")
 def demo_ui():
     return FileResponse(
-        "web/index.html"
+        ROOT / "web/index.html"
     )
 
 
@@ -99,6 +119,8 @@ def demo_ui():
 def health():
     return {
         "status": "ok",
+        "device": engine.device,
+        "reranker_enabled": engine.enable_reranker,
         "service": "PRISM Agentic Code Intelligence",
         "version": "1.0.0",
         "uptime_seconds": (

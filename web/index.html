@@ -1,941 +1,501 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  />
-
-  <title>PRISM Code Intelligence</title>
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>PRISM · Code Intelligence</title>
   <style>
     :root {
-      --bg: #080b12;
-      --panel: #101521;
-      --panel2: #151c2a;
-      --border: #263147;
-      --text: #f4f7fb;
-      --muted: #93a0b5;
-      --blue: #4d8dff;
-      --cyan: #62d9ff;
-      --green: #56d49b;
-      --orange: #ffb85c;
-      --red: #ff7474;
+      color-scheme: light;
+      --canvas: #eeedf1; --bg: #f8f7fc; --surface: #fff; --subtle: #faf9fd;
+      --ink: #182038; --muted: #777985; --line: #eeedf3;
+      --accent: #8251ed; --accent-soft: #f0eafa; --accent-ink: #7441d5;
+      --green: #27835e; --red: #b54252; --shadow: 0 4px 22px #28204b04;
+      --keyword: #a028a3; --string: #218650; --number: #15858c; --comment: #93949c; --function: #b57620;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
     }
-
-    * {
-      box-sizing: border-box;
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --canvas: #14121b; --bg: #1b1925; --surface: #24212f; --subtle: #282432;
+      --ink: #edeaf6; --muted: #aaa5b8; --line: #353040;
+      --accent: #ad83ff; --accent-soft: #35284e; --accent-ink: #c7a6ff;
+      --green: #8dd9b3; --red: #ff9da9; --shadow: 0 4px 22px #0000000a;
+      --keyword: #d9a1f2; --string: #96d5aa; --number: #83d3da; --comment: #928b9f; --function: #efc48b;
     }
-
-    body {
-      margin: 0;
-      background:
-        radial-gradient(
-          circle at 15% 0%,
-          #142341 0,
-          transparent 30%
-        ),
-        var(--bg);
-      color: var(--text);
-      font-family:
-        Inter,
-        ui-sans-serif,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-    }
-
-    .shell {
-      max-width: 1240px;
-      margin: 0 auto;
-      padding: 38px 24px 80px;
-    }
-
-    .header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 24px;
-      margin-bottom: 30px;
-    }
-
-    .eyebrow {
-      color: var(--cyan);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .13em;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 7px 0 7px;
-      font-size: clamp(32px, 5vw, 56px);
-      letter-spacing: -.045em;
-      line-height: 1;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      max-width: 720px;
-      font-size: 16px;
-      line-height: 1.55;
-    }
-
-    .status {
-      border: 1px solid var(--border);
-      background: rgba(16,21,33,.85);
-      border-radius: 999px;
-      padding: 10px 14px;
-      color: var(--muted);
-      font-size: 13px;
-      white-space: nowrap;
-    }
-
-    .status.ok {
-      color: var(--green);
-    }
-
-    .search-panel {
-      border: 1px solid var(--border);
-      background: rgba(16,21,33,.92);
-      border-radius: 22px;
-      padding: 20px;
-      box-shadow: 0 24px 70px rgba(0,0,0,.28);
-    }
-
-    .search-row {
-      display: flex;
-      gap: 12px;
-    }
-
-    textarea {
-      flex: 1;
-      min-height: 68px;
-      resize: vertical;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: #090d15;
-      color: var(--text);
-      padding: 15px 16px;
-      font: inherit;
-      line-height: 1.45;
-      outline: none;
-    }
-
-    textarea:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(77,141,255,.12);
-    }
-
-    button {
-      border: 0;
-      border-radius: 14px;
-      background: linear-gradient(
-        135deg,
-        var(--blue),
-        #725cff
-      );
-      color: white;
-      font-weight: 800;
-      padding: 0 24px;
-      cursor: pointer;
-      min-width: 128px;
-    }
-
-    button:disabled {
-      opacity: .55;
-      cursor: wait;
-    }
-
-    .examples {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .chip {
-      border: 1px solid var(--border);
-      background: #0c111b;
-      color: #b9c5d8;
-      border-radius: 999px;
-      padding: 8px 11px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .chip:hover {
-      border-color: var(--blue);
-      color: white;
-    }
-
-    .summary {
-      display: grid;
-      grid-template-columns:
-        repeat(4, minmax(0,1fr));
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    .metric {
-      border: 1px solid var(--border);
-      background: #0c111b;
-      border-radius: 14px;
-      padding: 14px;
-    }
-
-    .metric-label {
-      color: var(--muted);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-
-    .metric-value {
-      margin-top: 6px;
-      font-size: 20px;
-      font-weight: 800;
-      word-break: break-word;
-    }
-
-    .route-semantic {
-      color: var(--cyan);
-    }
-
-    .route-structural {
-      color: var(--orange);
-    }
-
-    .route-exact_usage {
-      color: var(--green);
-    }
-
-    .route-evolution {
-      color: #bd98ff;
-    }
-
-    .trace {
-      margin-top: 18px;
-      border: 1px solid var(--border);
-      background: #0c111b;
-      border-radius: 14px;
-      padding: 15px;
-    }
-
-    .trace-title {
-      font-size: 12px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      margin-bottom: 10px;
-    }
-
-    .steps {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-    }
-
-    .step {
-      border: 1px solid #2a3850;
-      background: #121a28;
-      color: #cad5e5;
-      padding: 7px 10px;
-      border-radius: 9px;
-      font-size: 12px;
-    }
-
-    .results {
-      margin-top: 24px;
-      display: grid;
-      gap: 14px;
-    }
-
-    .result-card {
-      border: 1px solid var(--border);
-      background: rgba(16,21,33,.95);
-      border-radius: 18px;
-      overflow: hidden;
-    }
-
-    .result-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 15px 17px;
-      border-bottom: 1px solid var(--border);
-      background: var(--panel2);
-    }
-
-    .result-title {
-      font-weight: 800;
-    }
-
-    .result-meta {
-      margin-top: 5px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .score {
-      font-family: ui-monospace, monospace;
-      color: var(--cyan);
-      font-size: 13px;
-      white-space: nowrap;
-    }
-
-    .evidence {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-      padding: 12px 17px 0;
-    }
-
-    .evidence-item {
-      border-radius: 8px;
-      background: #192334;
-      color: #c5d4e8;
-      padding: 6px 8px;
-      font-size: 11px;
-    }
-
-    .timeline {
-      margin: 12px 17px 0;
-      padding: 11px;
-      border: 1px solid #303a50;
-      border-radius: 10px;
-      color: #c5d4e8;
-      font-size: 12px;
-      line-height: 1.55;
-    }
-
-    pre {
-      margin: 0;
-      padding: 17px;
-      overflow-x: auto;
-      background: #080b11;
-      color: #d6dfed;
-      font-family:
-        "SFMono-Regular",
-        Consolas,
-        monospace;
-      font-size: 12px;
-      line-height: 1.55;
-      max-height: 420px;
-    }
-
-    .empty,
-    .error,
-    .loading {
-      margin-top: 22px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      border-radius: 15px;
-      padding: 18px;
-      color: var(--muted);
-    }
-
-    .error {
-      border-color: rgba(255,116,116,.4);
-      color: var(--red);
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .footer-note {
-      margin-top: 22px;
-      color: #69768d;
-      font-size: 12px;
-    }
-
-    @media (max-width: 760px) {
-      .header,
-      .search-row {
-        flex-direction: column;
-      }
-
-      button {
-        min-height: 48px;
-        width: 100%;
-      }
-
-      .summary {
-        grid-template-columns:
-          repeat(2, minmax(0,1fr));
-      }
-    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; padding: 9px; background: var(--canvas); color: var(--ink); font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    button, textarea { font: inherit; }
+    button { cursor: pointer; color: inherit; }
+    button:disabled { opacity: .45; cursor: wait; }
+    button, summary, textarea, a { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.55; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .shell { height: calc(100dvh - 18px); min-height: 500px; display: grid; grid-template-columns: 57px minmax(0, 1fr); background: var(--bg); border: 1px solid var(--surface); border-radius: 17px; overflow: hidden; }
+    .rail { display: flex; flex-direction: column; align-items: center; padding: 15px 8px; gap: 13px; background: var(--surface); border-right: 1px solid var(--line); z-index: 5; }
+    .logo { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 8px; background: linear-gradient(145deg, #db48eb, #794cf0); color: white; flex-shrink: 0; }
+    .logo svg { stroke-width: 1.9; width: 20px; height: 20px; }
+    .rail-group { display: flex; flex-direction: column; gap: 13px; align-items: center; width: 100%; padding-top: 18px; }
+    .rail-rule { height: 1px; width: 23px; background: var(--line); margin: 3px 0; }
+    .icon-button { width: 33px; height: 33px; display: inline-flex; align-items: center; justify-content: center; padding: 0; background: transparent; border: 1px solid transparent; border-radius: 7px; }
+    .icon-button:hover { background: var(--accent-soft); color: var(--accent-ink); }
+    .icon-button.active { background: var(--accent); color: white; }
+    .rail-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+    .rail-label { display: none; }
+    .shell.nav-expanded { grid-template-columns: 190px minmax(0, 1fr); }
+    .nav-expanded .rail { align-items: stretch; padding-inline: 14px; }
+    .nav-expanded .rail-group, .nav-expanded .rail-bottom { align-items: stretch; }
+    .nav-expanded .rail-label { display: inline; font-size: 12px; white-space: nowrap; }
+    .nav-expanded .rail .icon-button { width: 100%; justify-content: flex-start; padding: 0 9px; gap: 10px; }
+    .nav-expanded .rail-rule { width: 100%; }
+    .app { min-height: 0; display: grid; grid-template-rows: 61px minmax(0, 1fr); min-width: 0; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; padding: 0 22px 0 16px; gap: 12px; }
+    .top-left, .top-right { display: flex; align-items: center; gap: 12px; }
+    .menu-button { background: var(--surface); border-color: var(--line); }
+    .brand { font-size: 14px; font-weight: 650; letter-spacing: -.3px; }
+    .brand span { color: var(--muted); font-size: 11px; font-weight: 400; margin-left: 7px; letter-spacing: 0; }
+    .status { display: flex; align-items: center; gap: 7px; font-size: 10px; color: var(--muted); }
+    .status-dot { height: 6px; width: 6px; background: var(--muted); border-radius: 50%; }
+    .status.ready .status-dot { background: var(--green); }
+    .local-badge { font-size: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; }
+    .workspace { min-width: 0; display: grid; grid-template-columns: minmax(340px, .96fr) minmax(0, 1.04fr); gap: 26px; padding: 5px 22px 18px 16px; min-height: 0; }
+    .query-pane { min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+    .conversation { min-width: 0; flex: 1; min-height: 0; overflow: auto; padding: 10px 6px 20px 2px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+    .identity { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 10px; }
+    .identity strong { color: var(--ink); font-weight: 550; }
+    .avatar { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); }
+    .avatar svg { width: 13px; height: 13px; }
+    .identity .logo { width: 23px; height: 23px; border-radius: 7px; }
+    .identity .logo svg { width: 16px; height: 16px; }
+    h1 { font-size: 23px; line-height: 1.45; font-weight: 550; letter-spacing: -.6px; margin: 18px 0 12px; }
+    .welcome-text { color: var(--muted); font-size: 12px; line-height: 1.8; max-width: 390px; margin: 0 0 24px; }
+    .eyebrow { font-size: 10px; color: var(--muted); margin-bottom: 12px; }
+    .examples { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .example { text-align: left; padding: 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); box-shadow: var(--shadow); }
+    .example:hover { border-color: var(--accent); }
+    .example strong { display: flex; justify-content: space-between; font-weight: 550; font-size: 12px; margin-bottom: 8px; }
+    .example strong span { color: var(--accent); }
+    .example small { display: block; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .welcome-note { font-size: 10px; line-height: 1.7; color: var(--muted); margin-top: 20px; }
+    .question-text { margin: 12px 0 23px; font-size: 16px; line-height: 1.6; font-weight: 550; letter-spacing: -.2px; overflow-wrap: anywhere; }
+    .answer { margin-top: 13px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 9px; box-shadow: var(--shadow); }
+    .route-card { padding: 15px 16px; margin-bottom: 12px; }
+    .route-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 11px; }
+    .route-chip { font-size: 11px; color: var(--accent-ink); background: var(--accent-soft); padding: 4px 8px; border-radius: 5px; }
+    .route-top small { font-size: 10px; color: var(--muted); }
+    .routing-note { color: var(--muted); font-size: 10px; line-height: 1.65; margin: 11px 0 0; }
+    .evidence-link { overflow-wrap: anywhere; }
+    .route-reason { font-size: 12px; line-height: 1.7; margin: 0 0 12px; }
+    .query-metrics { display: flex; gap: 24px; border-top: 1px solid var(--line); padding-top: 12px; margin: 0; }
+    .query-metrics dt { color: var(--muted); font-size: 9px; margin-bottom: 5px; }
+    .query-metrics dd { margin: 0; font-size: 12px; font-weight: 550; }
+    .preview-card { margin: 12px 0; border-color: var(--accent); overflow: hidden; }
+    .preview-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 11px 12px; border-bottom: 1px solid var(--line); font-size: 10px; }
+    .preview-head span { color: var(--muted); }
+    .text-button { padding: 5px 8px; font-size: 10px; background: var(--subtle); border: 1px solid var(--line); border-radius: 5px; }
+    .text-button:hover { border-color: var(--accent); color: var(--accent-ink); }
+    .preview-code { margin: 0; padding: 13px 14px; font: 10px/1.8 var(--mono); overflow: hidden; height: 106px; white-space: pre; color: var(--ink); background: var(--surface); }
+    .result-picker { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 10px 0 15px; }
+    .result-picker-label { font-size: 10px; color: var(--muted); margin-right: 4px; }
+    .result-tab { background: var(--surface); border: 1px solid var(--line); border-radius: 5px; padding: 6px 9px; font-size: 10px; }
+    .result-tab[aria-pressed="true"] { border-color: var(--accent); color: var(--accent-ink); background: var(--accent-soft); }
+    .evidence-card { padding: 16px; }
+    .evidence-card h2 { margin: 0 0 10px; font-size: 12px; font-weight: 600; }
+    .evidence-card p { font-size: 11px; line-height: 1.7; margin: 8px 0; }
+    .verified { color: var(--green); font-size: 11px; margin-bottom: 10px; }
+    .evidence-list { display: flex; flex-direction: column; gap: 6px; }
+    .evidence-link { display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; background: var(--subtle); border: 1px solid var(--line); padding: 8px 10px; border-radius: 5px; font-size: 10px; }
+    .evidence-link:hover { border-color: var(--accent); }
+    .evidence-link span { color: var(--accent-ink); white-space: nowrap; }
+    .muted { color: var(--muted); }
+    .score-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 0; margin: 8px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 10px; }
+    .score-row strong { font: 12px var(--mono); color: var(--accent-ink); }
+    .plan-details { margin-top: 12px; }
+    .plan-details summary { cursor: pointer; font-size: 10px; color: var(--muted); }
+    .plan-details ol { padding-left: 18px; font-size: 10px; line-height: 1.85; color: var(--muted); margin-bottom: 0; }
+    .timeline { list-style: none; padding: 0; margin: 10px 0; }
+    .timeline li { position: relative; border-left: 1px solid var(--line); margin-left: 4px; padding: 0 0 14px 16px; font-size: 10px; line-height: 1.6; }
+    .timeline li:before { content: ""; position: absolute; left: -4px; top: 4px; width: 7px; height: 7px; background: var(--accent); border-radius: 50%; }
+    .timeline strong { margin-right: 7px; }
+    .composer-area { padding-top: 10px; position: relative; }
+    .composer { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px 8px; box-shadow: var(--shadow); }
+    .composer:focus-within { border-color: var(--accent); }
+    textarea { display: block; width: 100%; resize: none; height: 48px; max-height: 100px; padding: 0; color: var(--ink); background: transparent; border: 0; outline: 0; font-size: 12px; line-height: 1.6; }
+    textarea::placeholder { color: var(--muted); }
+    .composer-actions { display: flex; align-items: center; justify-content: space-between; }
+    .composer-tools { display: flex; align-items: center; gap: 7px; }
+    .composer-tools span { font-size: 9px; color: var(--muted); }
+    .send { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: 0; border-radius: 50%; background: linear-gradient(135deg,#8251ed,#d348e7); color: white; }
+    .send:hover { filter: brightness(1.12); }
+    .composer-caption { text-align: center; margin: 8px 0 0; font-size: 9px; color: var(--muted); }
+    .message { margin: 14px 0; padding: 13px; font-size: 12px; line-height: 1.7; }
+    .message.error { color: var(--red); border-color: var(--red); }
+    .loading-dot { display: inline-block; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; margin-right: 8px; animation: pulse 1s infinite alternate; }
+    @keyframes pulse { to { opacity: .25; } }
+    .code-pane { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; min-width: 0; display: flex; flex-direction: column; box-shadow: var(--shadow); }
+    .code-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); padding: 13px 16px; min-height: 53px; }
+    .code-title { min-width: 0; font-size: 11px; display: flex; align-items: center; gap: 7px; }
+    .code-title span { color: var(--muted); font-size: 10px; }
+    .code-tools { display: flex; gap: 5px; }
+    .code-tools .icon-button { width: 28px; height: 28px; border-color: var(--line); border-radius: 5px; }
+    .code-tools svg { width: 14px; height: 14px; }
+    .file-strip { display: flex; justify-content: space-between; gap: 12px; padding: 10px 17px; border-bottom: 1px solid var(--line); font-size: 10px; color: var(--muted); }
+    .file-strip strong { color: var(--ink); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .code-scroll { overflow: auto; flex: 1; min-height: 0; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+    .code-lines { margin: 0; padding: 16px 0 32px; min-width: 100%; width: max-content; font: 11px/1.85 var(--mono); tab-size: 4; }
+    .code-line { display: flex; min-height: 20px; padding-right: 26px; }
+    .line-no { display: inline-block; width: 47px; flex-shrink: 0; padding-right: 13px; text-align: right; color: var(--comment); user-select: none; font-size: 10px; }
+    .line-text { white-space: pre; }
+    .code-line.matched { background: var(--accent-soft); box-shadow: inset 2px 0 var(--accent); }
+    .code-line.jump { outline: 1px solid var(--accent); outline-offset: -1px; }
+    .tok-keyword { color: var(--keyword); } .tok-string { color: var(--string); } .tok-number { color: var(--number); } .tok-comment { color: var(--comment); } .tok-function { color: var(--function); }
+    .code-empty { height: 100%; min-height: 250px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; }
+    .code-empty svg { width: 31px; height: 31px; color: var(--accent); }
+    .code-empty h2 { font-size: 16px; font-weight: 500; margin: 18px 0 10px; }
+    .code-empty p { font-size: 11px; line-height: 1.8; color: var(--muted); max-width: 270px; }
+    .code-footer { border-top: 1px solid var(--line); padding: 10px 16px; display: flex; justify-content: space-between; color: var(--muted); font-size: 9px; gap: 10px; }
+    .workspace.code-expanded { grid-template-columns: minmax(0, 1fr); }
+    .code-expanded .query-pane { display: none; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    dialog { padding: 26px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 15px; width: min(560px, calc(100vw - 32px)); max-height: 85dvh; box-shadow: 0 25px 100px #17102630; }
+    dialog::backdrop { background: #21173955; backdrop-filter: blur(3px); }
+    .dialog-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .dialog-head h2 { font-size: 18px; font-weight: 550; margin: 0; }
+    .dialog-note { font-size: 12px; line-height: 1.75; color: var(--muted); }
+    .benchmark-tag { display: inline-block; font-size: 9px; letter-spacing: .6px; color: var(--accent-ink); background: var(--accent-soft); padding: 5px 7px; border-radius: 4px; margin-top: 18px; }
+    .benchmark-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px 12px; margin: 24px 0; }
+    .benchmark-grid dt { font-size: 10px; color: var(--muted); margin-bottom: 7px; }
+    .benchmark-grid dd { font: 17px var(--mono); margin: 0; }
+    .provenance { padding: 13px; background: var(--subtle); border: 1px solid var(--line); border-radius: 7px; font-size: 10px; line-height: 1.9; color: var(--muted); }
+    .provenance code { overflow-wrap: anywhere; font: 10px/1.9 var(--mono); color: var(--ink); }
+    .about-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 11px; }
+    .about-table td { padding: 11px 0; border-bottom: 1px solid var(--line); line-height: 1.6; }
+    .about-table td:last-child { color: var(--muted); padding-left: 20px; }
+    .toast { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--surface); padding: 11px 18px; border-radius: 8px; font-size: 12px; z-index: 20; box-shadow: 0 4px 20px #0002; }
+    @media(min-width:1450px) { .workspace { gap: 36px; padding-inline: 27px; grid-template-columns: minmax(380px,.85fr) minmax(0,1.15fr); } .conversation { padding-top: 22px; } .code-lines { font-size: 12px; } }
+    @media(max-width:1000px) { .workspace { gap: 16px; padding-right: 14px; grid-template-columns: minmax(300px,.95fr) minmax(0,1.05fr); } .brand span { display: none; } .query-metrics { gap: 18px; } .topbar { padding-right: 15px; } }
+    @media(max-width:760px) { body { padding: 0; } .shell { min-height: 100dvh; height: auto; border-radius: 0; grid-template-columns: 46px minmax(0,1fr); overflow: visible; } .rail { padding-inline: 5px; position: sticky; top: 0; height: 100dvh; } .app { grid-template-rows: 57px minmax(0,1fr); } .workspace { display: flex; flex-direction: column; padding: 0 12px 14px; gap: 20px; } .conversation { max-height: none; overflow: visible; padding-top: 8px; } .composer-area { position: sticky; bottom: 0; background: var(--bg); z-index: 3; padding-bottom: 8px; } .query-pane { min-height: 480px; } .code-pane { height: 65dvh; min-height: 380px; } .topbar { padding: 0 12px; } .status { font-size: 9px; } .local-badge { display: none; } .shell.nav-expanded { grid-template-columns: 46px minmax(0,1fr); } .nav-expanded .rail { padding-inline: 5px; } .nav-expanded .rail-label { display: none; } .nav-expanded .rail .icon-button { justify-content: center; padding: 0; } .examples { gap: 8px; } .example { padding: 12px; } .workspace.code-expanded .code-pane { height: calc(100dvh - 80px); } .benchmark-grid { grid-template-columns: repeat(2,1fr); } }
+    @media(prefers-reduced-motion:reduce) { .loading-dot { animation: none; } }
   </style>
 </head>
-
 <body>
-  <main class="shell">
-
-    <header class="header">
-      <div>
-        <div class="eyebrow">
-          Samsung PRISM · Agentic Code Intelligence
-        </div>
-
-        <h1>
-          Ask the repository.
-        </h1>
-
-        <div class="subtitle">
-          One local engine that routes natural-language questions
-          through semantic retrieval, AST-aware structural search,
-          exact usage lookup, and version-aware evolutionary retrieval.
-        </div>
-      </div>
-
-      <div
-        id="status"
-        class="status"
-      >
-        checking backend…
-      </div>
-    </header>
-
-
-    <section class="search-panel">
-
-      <div class="search-row">
-        <textarea
-          id="query"
-          placeholder="Describe the code you want to find…"
-        >Find code that validates a tic-tac-toe board state</textarea>
-
-        <button id="searchButton">
-          Search
-        </button>
-      </div>
-
-
-      <div class="examples">
-
-        <div
-          class="chip"
-          data-query="Find code that validates a tic-tac-toe board state"
-        >
-          Semantic
-        </div>
-
-        <div
-          class="chip"
-          data-query="which files import math?"
-        >
-          Exact usage
-        </div>
-
-        <div
-          class="chip"
-          data-query="which functions call range before print?"
-        >
-          Structural
-        </div>
-
-        <div
-          class="chip"
-          data-query="show binary search version history"
-        >
-          Evolution
-        </div>
-
-      </div>
-
-
-      <div
-        id="summary"
-        class="summary hidden"
-      ></div>
-
-
-      <div
-        id="trace"
-        class="trace hidden"
-      ></div>
-
-    </section>
-
-
-    <div
-      id="message"
-      class="hidden"
-    ></div>
-
-
-    <section
-      id="results"
-      class="results"
-    ></section>
-
-
-    <div class="footer-note">
-      Runs locally on the retrieval index.
-      No paid inference API is required.
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-prism" viewBox="0 0 24 24"><path d="M12 3 3 19h18L12 3Z M12 3v16M3 19l9-6 9 6"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-12-2 14"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v16h16M8 15v-4m5 4V7m5 8v-6"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3ZM20 3v4m-2-2h4"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.1"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14a8 8 0 0 1-10-10A9 9 0 1 0 20 14Z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M5 20v-2a7 7 0 0 1 14 0v2"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+</defs></svg>
+<div class="shell" id="shell">
+  <nav class="rail" aria-label="Workbench navigation">
+    <div class="logo" aria-label="PRISM"><svg><use href="#i-prism"/></svg></div>
+    <div class="rail-group">
+      <button class="icon-button" id="newSearch" aria-label="New search" title="New search"><svg><use href="#i-plus"/></svg><span class="rail-label">New search</span></button>
+      <button class="icon-button" data-open="examplesDialog" aria-label="Example queries" title="Example queries"><svg><use href="#i-spark"/></svg><span class="rail-label">Example queries</span></button>
+      <button class="icon-button" data-open="benchmarkDialog" aria-label="Benchmark results" title="Benchmark results"><svg><use href="#i-chart"/></svg><span class="rail-label">Benchmark</span></button>
+      <div class="rail-rule"></div>
+      <button class="icon-button active" id="workbenchButton" aria-label="Code workbench" title="Code workbench" aria-current="page"><svg><use href="#i-code"/></svg><span class="rail-label">Code workbench</span></button>
     </div>
-
-  </main>
-
-
-  <script>
-    const queryEl =
-      document.getElementById("query");
-
-    const button =
-      document.getElementById("searchButton");
-
-    const resultsEl =
-      document.getElementById("results");
-
-    const summaryEl =
-      document.getElementById("summary");
-
-    const traceEl =
-      document.getElementById("trace");
-
-    const messageEl =
-      document.getElementById("message");
-
-    const statusEl =
-      document.getElementById("status");
-
-
-    function esc(value) {
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-
-    function fmtScore(value) {
-      if (
-        value === null ||
-        value === undefined ||
-        Number.isNaN(Number(value))
-      ) {
-        return "—";
-      }
-
-      return Number(value).toFixed(4);
-    }
-
-
-    function evidenceHTML(evidence) {
-      if (
-        !Array.isArray(evidence) ||
-        evidence.length === 0
-      ) {
-        return "";
-      }
-
-      const items = evidence.map((item) => {
-        if (
-          typeof item !== "object" ||
-          item === null
-        ) {
-          return `
-            <span class="evidence-item">
-              ${esc(item)}
-            </span>
-          `;
-        }
-
-        const pieces = [];
-
-        if (item.type) {
-          pieces.push(item.type);
-        }
-
-        if (item.name) {
-          pieces.push(item.name);
-        }
-
-        if (item.line !== undefined) {
-          pieces.push(`line ${item.line}`);
-        }
-
-        if (item.function) {
-          pieces.push(`fn ${item.function}`);
-        }
-
-        if (item.class) {
-          pieces.push(`class ${item.class}`);
-        }
-
-        return `
-          <span class="evidence-item">
-            ${esc(pieces.join(" · ") || JSON.stringify(item))}
-          </span>
-        `;
-      });
-
-      return `
-        <div class="evidence">
-          ${items.join("")}
-        </div>
-      `;
-    }
-
-
-    function timelineHTML(timeline) {
-      if (
-        !Array.isArray(timeline) ||
-        timeline.length === 0
-      ) {
-        return "";
-      }
-
-      const rows = timeline.map((item) => {
-        const similarity =
-          item.previous_similarity === null ||
-          item.previous_similarity === undefined
-            ? ""
-            : ` · similarity ${Number(
-                item.previous_similarity
-              ).toFixed(3)}`;
-
-        return `
-          <div>
-            <strong>${esc(item.version)}</strong>
-            · ${esc(item.change_type)}
-            ${esc(similarity)}
+    <div class="rail-bottom">
+      <button class="icon-button" data-open="aboutDialog" aria-label="About the retrieval engine" title="About the retrieval engine"><svg><use href="#i-info"/></svg><span class="rail-label">About PRISM</span></button>
+      <button class="icon-button" id="themeToggle" aria-label="Switch to dark mode" title="Switch to dark mode"><svg><use href="#i-moon"/></svg><span class="rail-label">Color theme</span></button>
+    </div>
+  </nav>
+  <div class="app">
+    <header class="topbar">
+      <div class="top-left"><button class="icon-button menu-button" id="menuButton" aria-label="Expand navigation" aria-expanded="false"><svg><use href="#i-menu"/></svg></button><div class="brand">PRISM <span>Code Intelligence</span></div></div>
+      <div class="top-right"><div id="backendStatus" class="status" role="status"><i class="status-dot"></i><span>Connecting</span></div><span class="local-badge">Demo · 5,000 documents</span></div>
+    </header>
+    <main class="workspace" id="workspace">
+      <section class="query-pane" aria-label="Query and retrieval evidence">
+        <div class="conversation" id="conversation">
+          <div id="welcome">
+            <div class="identity"><div class="logo"><svg><use href="#i-prism"/></svg></div><strong>PRISM</strong><span>Your code retrieval workspace</span></div>
+            <h1>Find the code you have in mind.</h1>
+            <p class="welcome-text">Ask about behavior, an API, a code relationship, or version history. PRISM selects a retrieval route and shows the supporting evidence.</p>
+            <div class="eyebrow">Start with a question</div>
+            <div class="examples" id="welcomeExamples"></div>
+            <p class="welcome-note">Packaged APPS demo · 5,000 documents.<br>Version history uses a separate synthetic fixture.<br>Choose a result to explore its source code alongside the evidence.</p>
           </div>
-        `;
-      });
-
-      return `
-        <div class="timeline">
-          <strong>Evolution timeline</strong>
-          <div style="margin-top:7px">
-            ${rows.join("")}
+          <div id="searchContent" hidden>
+            <div class="identity"><div class="avatar"><svg><use href="#i-search"/></svg></div><strong>Your query</strong><span>Natural-language search</span></div>
+            <h1 id="questionText" class="question-text"></h1>
+            <div class="identity"><div class="logo"><svg><use href="#i-prism"/></svg></div><strong>PRISM</strong><span>Retrieval & evidence</span></div>
+            <div id="message" class="message card" role="status" aria-live="polite" hidden></div>
+            <div id="answer" class="answer" hidden>
+              <div id="routeCard" class="route-card card"></div>
+              <div id="selectedPreview"></div>
+              <div id="resultPicker" class="result-picker" aria-label="Retrieved results"></div>
+              <div id="evidenceCard" class="evidence-card card" hidden></div>
+            </div>
           </div>
         </div>
-      `;
-    }
-
-
-    function renderResults(data) {
-      const route =
-        data.plan?.route || "unknown";
-
-      const execution =
-        data.execution || {};
-
-      const results =
-        Array.isArray(data.results)
-          ? data.results
-          : [];
-
-
-      const reranker =
-        execution.reranker_triggered === true
-          ? "Triggered"
-          : execution.reranker_triggered === false
-            ? "Skipped"
-            : "N/A";
-
-
-      summaryEl.innerHTML = `
-        <div class="metric">
-          <div class="metric-label">
-            Agent route
-          </div>
-          <div
-            class="metric-value route-${esc(route)}"
-          >
-            ${esc(route)}
-          </div>
+        <div class="composer-area">
+          <form class="composer" id="searchForm">
+            <label class="sr-only" for="query">Search the codebase</label>
+            <textarea id="query" placeholder="What would you like to find in the codebase?" maxlength="20000" spellcheck="false" required></textarea>
+            <div class="composer-actions"><div class="composer-tools"><button type="button" class="icon-button" data-open="examplesDialog" aria-label="Choose an example query" title="Choose an example query"><svg><use href="#i-spark"/></svg></button><span>⌘ / Ctrl + Enter</span></div><button id="searchButton" type="submit" class="send" aria-label="Find code" title="Find code"><svg><use href="#i-arrow"/></svg></button></div>
+          </form>
+          <p class="composer-caption">Retrieval with evidence · no generated code</p>
         </div>
-
-        <div class="metric">
-          <div class="metric-label">
-            Router confidence
-          </div>
-          <div class="metric-value">
-            ${data.plan?.confidence !== undefined
-              ? `${(
-                  Number(data.plan.confidence) * 100
-                ).toFixed(0)}%`
-              : "—"}
-          </div>
+      </section>
+      <section class="code-pane" id="codePane" aria-label="Selected source code">
+        <div class="code-toolbar"><div class="code-title">Python <span id="lineCount">· Source preview</span></div><div class="code-tools"><button class="icon-button" id="copyButton" aria-label="Copy code" title="Copy code" disabled><svg><use href="#i-copy"/></svg></button><button class="icon-button" id="expandButton" aria-label="Expand code pane" title="Expand code pane" aria-expanded="false"><svg><use href="#i-expand"/></svg></button></div></div>
+        <div class="file-strip" id="fileStrip" hidden><strong id="fileName"></strong><span id="fileRank"></span></div>
+        <div class="code-scroll" id="codeScroll">
+          <div class="code-empty" id="codeEmpty"><div><svg><use href="#i-code"/></svg><h2 id="emptyTitle">A closer look at the code.</h2><p id="emptyDescription">Your selected result opens here, with line numbers and the source behind each match.</p></div></div>
+          <pre class="code-lines" id="codeLines" tabindex="0" aria-label="Source code with line numbers" hidden></pre>
         </div>
+        <div class="code-footer"><span id="codeFooter">Awaiting your first query</span><span>Read-only</span></div>
+      </section>
+    </main>
+  </div>
+</div>
+<dialog id="examplesDialog" aria-labelledby="examplesTitle"><div class="dialog-head"><h2 id="examplesTitle">Four ways to find code</h2><button class="icon-button" data-close aria-label="Close examples"><svg><use href="#i-close"/></svg></button></div><p class="dialog-note">Choose a question. PRISM selects the retrieval route automatically.</p><div class="examples" id="dialogExamples"></div></dialog>
+<dialog id="benchmarkDialog" aria-labelledby="benchmarkTitle"><div class="dialog-head"><h2 id="benchmarkTitle">AppsRetrieval benchmark</h2><button class="icon-button" data-close aria-label="Close benchmark"><svg><use href="#i-close"/></svg></button></div><span class="benchmark-tag">GLOBAL / FIXED · NOT PER-QUERY</span><p class="dialog-note">Frozen 65% EmbeddingGemma / 35% Qwen fusion.<br>3,765 test queries · 8,765 corpus documents.</p><dl class="benchmark-grid"><div><dt>NDCG@10</dt><dd>0.853100</dd></div><div><dt>MRR@10</dt><dd>0.821803</dd></div><div><dt>MRR@100</dt><dd>0.824138</dd></div><div><dt>Recall@10</dt><dd>0.949535</dd></div><div><dt>Recall@20</dt><dd>0.973440</dd></div><div><dt>Recall@100</dt><dd>0.993625</dd></div></dl><div class="provenance">Recomputed from the exact ordered submission artifact.<br><code>python verify_submission.py</code><br><br>Artifact SHA-256<br><code>519fe7b0ad8bb4ae80f1da5192ceea067bc1c68b74cad6328ee7ac8a2de644d4</code></div><p class="dialog-note">These fixed metrics evaluate the dense retrieval pipeline on the test corpus. They do not measure router, AST, or version-retrieval accuracy. The live demo uses a separate 5,000-document APPS index; version history uses a controlled synthetic fixture.</p></dialog>
+<dialog id="aboutDialog" aria-labelledby="aboutTitle"><div class="dialog-head"><h2 id="aboutTitle">Built around the evidence</h2><button class="icon-button" data-close aria-label="Close about"><svg><use href="#i-close"/></svg></button></div><p class="dialog-note">PRISM Agentic Code Intelligence<br>Samsung PRISM GenAI Hackathon 3.0</p><table class="about-table"><tbody><tr><td>Semantic</td><td>Dual embedding retrieval with frozen 65/35 score fusion.</td></tr><tr><td>Exact usage</td><td>AST-derived symbol, import, and API evidence. Matching is case-insensitive and can include partial names; inspect each result.</td></tr><tr><td>Structural</td><td>Static AST structure and source-line ordering within a scope. This does not prove runtime execution order.</td></tr><tr><td>Evolution</td><td>Version retrieval and lineage over a controlled synthetic capability fixture.</td></tr></tbody></table><p class="dialog-note">The router uses predefined rules. Displayed route steps describe the selected pipeline, not an iterative reasoning trace. Router scores are fixed heuristic weights, not measured confidence.</p><p class="dialog-note">BM25, global AST fusion, and adaptive fusion were evaluated and left out of the final dense pipeline. The optional reranker slightly improved validation but slightly reduced test NDCG, so dense fusion remains the default.</p><p class="dialog-note">The evolution fixture is not historical APPS ground truth. This prototype retrieves existing code; generation is outside its scope.</p></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const routes = {semantic: 'Semantic', exact_usage: 'Exact usage', structural: 'Structural', evolution: 'Evolution'};
+const examples = [
+  ['Semantic', 'Find code that validates a tic-tac-toe board state'],
+  ['Exact usage', 'which files import math?'],
+  ['Structural', 'which functions call range before print?'],
+  ['Evolution', 'show binary search version history']
+];
+let responseData = null;
+let selectedIndex = 0;
+let busy = false;
+let toastTimer;
+const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const human = value => String(value ?? '').replaceAll('_', ' ');
+const scoreText = value => value !== null && value !== undefined && Number.isFinite(Number(value)) ? Number(value).toFixed(4) : '—';
+const scoreLabel = route => ({semantic:'Fusion score', exact_usage:'AST evidence score', structural:'AST evidence score', evolution:'Version similarity'}[route] || 'Retrieval score');
+const resultId = item => item.id || item.logical_id || 'Code result';
+const resultTitle = item => item.title || item.logical_id || `Document ${resultId(item)}`;
+const codeText = item => String(item?.code ?? '');
+const codeRows = item => { const rows = codeText(item).split('\n'); if (rows.length > 1 && rows.at(-1) === '') rows.pop(); return rows; };
 
-        <div class="metric">
-          <div class="metric-label">
-            Total latency
-          </div>
-          <div class="metric-value">
-            ${Number(data.total_ms || 0).toFixed(1)} ms
-          </div>
-        </div>
+// A small, dependency-free Python tokenizer. Every token is escaped before markup.
+// Triple-quoted strings are tokenized before splitting so their color spans lines.
+function highlight(code) {
+  const pattern = /("""[\s\S]*?(?:"""|$)|'''[\s\S]*?(?:'''|$)|#[^\n]*|(?:[rubf]{0,2})(?:"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')|\b(?:False|None|True|and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)\b|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*(?=\s*\())/g;
+  let html = '', offset = 0;
+  for (const match of code.matchAll(pattern)) {
+    const token = match[0];
+    html += esc(code.slice(offset, match.index));
+    const kind = token.startsWith('#') ? 'comment' : /^(?:[rubf]{0,2})["']/i.test(token) ? 'string' : /^\d/.test(token) ? 'number' : /^(False|None|True|and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/.test(token) ? 'keyword' : 'function';
+    html += token.split('\n').map(part => `<span class="tok-${kind}">${esc(part)}</span>`).join('\n');
+    offset = match.index + token.length;
+  }
+  return html + esc(code.slice(offset));
+}
 
-        <div class="metric">
-          <div class="metric-label">
-            Reranker
-          </div>
-          <div class="metric-value">
-            ${esc(reranker)}
-          </div>
-        </div>
-      `;
-
-      summaryEl.classList.remove("hidden");
-
-
-      const steps =
-        Array.isArray(execution.steps)
-          ? execution.steps
-          : [];
-
-      traceEl.innerHTML = `
-        <div class="trace-title">
-          Agent execution trace
-        </div>
-
-        <div class="steps">
-          ${steps.map(
-            step => `
-              <span class="step">
-                ${esc(step)}
-              </span>
-            `
-          ).join("")}
-        </div>
-
-        <div
-          style="
-            margin-top:11px;
-            color:#8390a5;
-            font-size:12px;
-          "
-        >
-          Strategy:
-          <strong style="color:#cad5e5">
-            ${esc(execution.strategy || "—")}
-          </strong>
-
-          ${data.plan?.reason
-            ? ` · ${esc(data.plan.reason)}`
-            : ""}
-        </div>
-      `;
-
-      traceEl.classList.remove("hidden");
-
-
-      if (results.length === 0) {
-        resultsEl.innerHTML = `
-          <div class="empty">
-            No matching code was returned for this query.
-          </div>
-        `;
-        return;
-      }
-
-
-      resultsEl.innerHTML =
-        results.map((item, index) => {
-
-          const rank =
-            item.rank || index + 1;
-
-          const identity =
-            item.id ||
-            item.logical_id ||
-            "result";
-
-          const version =
-            item.version
-              ? ` · ${item.version}`
-              : "";
-
-          const title =
-            item.title ||
-            identity;
-
-          const language =
-            item.language ||
-            "Python";
-
-          const scope =
-            item.scope
-              ? ` · scope: ${item.scope}`
-              : "";
-
-          const change =
-            item.change_type
-              ? ` · ${item.change_type}`
-              : "";
-
-          return `
-            <article class="result-card">
-
-              <div class="result-head">
-                <div>
-                  <div class="result-title">
-                    #${rank}
-                    ${esc(title)}
-                    ${esc(version)}
-                  </div>
-
-                  <div class="result-meta">
-                    ${esc(identity)}
-                    · ${esc(language)}
-                    ${esc(scope)}
-                    ${esc(change)}
-                  </div>
-                </div>
-
-                <div class="score">
-                  score ${fmtScore(item.score)}
-                </div>
-              </div>
-
-              ${evidenceHTML(item.evidence)}
-
-              ${timelineHTML(item.timeline)}
-
-              <pre><code>${esc(item.code || "")}</code></pre>
-
-            </article>
-          `;
-        }).join("");
-    }
-
-
-    async function runSearch() {
-      const query =
-        queryEl.value.trim();
-
-      if (!query) {
-        return;
-      }
-
-      button.disabled = true;
-      button.textContent = "Searching…";
-
-      resultsEl.innerHTML = "";
-
-      summaryEl.classList.add("hidden");
-      traceEl.classList.add("hidden");
-
-      messageEl.className = "loading";
-      messageEl.textContent =
-        "The agent is planning and executing the retrieval route…";
-
-
-      try {
-        const response = await fetch(
-          "/search",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-            body: JSON.stringify({
-              query,
-              top_k: 5
-            })
-          }
-        );
-
-        const data =
-          await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.detail ||
-            "Search request failed."
-          );
-        }
-
-        messageEl.className = "hidden";
-
-        renderResults(data);
-      }
-
-      catch (error) {
-        messageEl.className = "error";
-        messageEl.textContent =
-          error.message;
-      }
-
-      finally {
-        button.disabled = false;
-        button.textContent = "Search";
-      }
-    }
-
-
-    async function checkHealth() {
-      try {
-        const response =
-          await fetch("/health");
-
-        if (!response.ok) {
-          throw new Error();
-        }
-
-        const health =
-          await response.json();
-
-        statusEl.textContent =
-          "● backend ready";
-
-        statusEl.classList.add("ok");
-      }
-
-      catch {
-        statusEl.textContent =
-          "● backend unavailable";
-      }
-    }
-
-
-    button.addEventListener(
-      "click",
-      runSearch
-    );
-
-
-    queryEl.addEventListener(
-      "keydown",
-      event => {
-        if (
-          event.key === "Enter" &&
-          (event.metaKey || event.ctrlKey)
-        ) {
-          runSearch();
-        }
-      }
-    );
-
-
-    document
-      .querySelectorAll(".chip")
-      .forEach(chip => {
-        chip.addEventListener(
-          "click",
-          () => {
-            queryEl.value =
-              chip.dataset.query;
-
-            runSearch();
-          }
-        );
-      });
-
-
-    checkHealth();
-  </script>
-
+function toast(message) {
+  clearTimeout(toastTimer); $('toast').textContent = message; $('toast').hidden = false;
+  toastTimer = setTimeout(() => $('toast').hidden = true, 2600);
+}
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  const label = `Switch to ${theme === 'light' ? 'dark' : 'light'} mode`;
+  $('themeToggle').setAttribute('aria-label', label); $('themeToggle').title = label;
+  try { localStorage.setItem('prism-theme', theme); } catch {}
+}
+let savedTheme; try { savedTheme = localStorage.getItem('prism-theme'); } catch {}
+setTheme(savedTheme === 'dark' ? 'dark' : 'light');
+$('themeToggle').addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'));
+$('menuButton').addEventListener('click', () => {
+  const expanded = $('shell').classList.toggle('nav-expanded');
+  $('menuButton').setAttribute('aria-expanded', expanded);
+  $('menuButton').setAttribute('aria-label', `${expanded ? 'Collapse' : 'Expand'} navigation`);
+});
+document.querySelectorAll('[data-open]').forEach(button => button.addEventListener('click', () => $(button.dataset.open).showModal()));
+document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
+document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click', event => {
+  if (event.target !== dialog) return;
+  const rect = dialog.getBoundingClientRect();
+  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close();
+}));
+for (const container of [$('welcomeExamples'), $('dialogExamples')]) {
+  container.innerHTML = examples.map(([name, query], index) => `<button type="button" class="example" data-example="${index}"><strong>${name}<span aria-hidden="true">↗</span></strong><small>${esc(query)}</small></button>`).join('');
+}
+document.querySelectorAll('[data-example]').forEach(button => button.addEventListener('click', () => {
+  if (busy) return;
+  $('query').value = examples[Number(button.dataset.example)][1];
+  $('examplesDialog').close(); runSearch();
+}));
+function expandCode(expanded) {
+  $('workspace').classList.toggle('code-expanded', expanded);
+  $('expandButton').setAttribute('aria-expanded', expanded);
+  const label = expanded ? 'Restore split view' : 'Expand code pane';
+  $('expandButton').setAttribute('aria-label', label); $('expandButton').title = label;
+}
+$('expandButton').addEventListener('click', () => expandCode(!$('workspace').classList.contains('code-expanded')));
+$('workbenchButton').addEventListener('click', () => { expandCode(false); $('query').focus(); });
+document.addEventListener('keydown', event => { if (event.key === 'Escape') expandCode(false); });
+function clearCode() {
+  $('codeLines').hidden = true; $('codeLines').innerHTML = ''; $('codeEmpty').hidden = false;
+  $('fileStrip').hidden = true; $('copyButton').disabled = true; $('lineCount').textContent = '· Source preview';
+  $('codeFooter').textContent = 'Awaiting your first query';
+  $('emptyTitle').textContent = 'A closer look at the code.';
+  $('emptyDescription').textContent = 'Your selected result opens here, with line numbers and the source behind each match.';
+}
+$('newSearch').addEventListener('click', () => {
+  if (busy) return;
+  responseData = null; selectedIndex = 0; expandCode(false); clearCode();
+  $('welcome').hidden = false; $('searchContent').hidden = true; $('query').value = ''; $('query').focus();
+});
+$('copyButton').addEventListener('click', async () => {
+  const item = responseData?.results?.[selectedIndex]; if (!item) return;
+  try { await navigator.clipboard.writeText(codeText(item)); toast('Code copied to clipboard'); }
+  catch { toast('Clipboard unavailable. Select the code and copy it manually.'); }
+});
+function jumpToLine(line) {
+  const target = document.getElementById(`source-line-${line}`); if (!target) return;
+  const scroller = $('codeScroll');
+  scroller.scrollTop += target.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 40;
+  document.querySelectorAll('.code-line.jump').forEach(el => el.classList.remove('jump'));
+  target.classList.add('jump');
+  if (matchMedia('(max-width:760px)').matches) $('codePane').scrollIntoView({block:'start'});
+}
+function renderEvidence(item, route) {
+  const evidence = Array.isArray(item.evidence) ? item.evidence : [];
+  const timeline = Array.isArray(item.timeline) ? item.timeline : [];
+  let content = '<h2>Why this code?</h2>';
+  if (evidence.length) {
+    content += '<div class="verified">AST-derived evidence</div><div class="evidence-list">';
+    content += evidence.map((entry, index) => {
+      if (!entry || typeof entry !== 'object') return `<p>${esc(entry)}</p>`;
+      const label = [human(entry.type), entry.name, entry.function ? `in ${entry.function}` : '', entry.class ? `class ${entry.class}` : '', entry.depth != null ? `nesting depth ${entry.depth}` : ''].filter(Boolean).join(' · ');
+      const line = Number(entry.line);
+      return Number.isInteger(line) && line > 0 && line <= codeRows(item).length ? `<button class="evidence-link" data-evidence="${index}">${esc(label)}<span>Line ${line} ↗</span></button>` : `<p>${esc(label)}</p>`;
+    }).join('') + '</div>';
+    if (route === 'exact_usage') content += '<p class="muted">Names are matched case-insensitively and may include partial matches. Check the evidence type and symbol against your question.</p>';
+    if (route === 'structural') content += evidence.some(entry => entry?.type === 'call_order')
+      ? '<p class="muted">These calls appear in this source-line order within the same scope. Branches and runtime execution order are not verified.</p>'
+      : '<p class="muted">Static AST structure is shown here; the retrieved code has not been executed.</p>';
+  } else if (route === 'semantic') {
+    content += '<p>Ranked by semantic similarity to your query using the frozen 65% EmbeddingGemma / 35% Qwen score fusion.</p>';
+    if (responseData.execution?.reranker_triggered) content += '<p>The optional cross-encoder reranker was applied to this query.</p>';
+  } else if (route === 'evolution') {
+    content += '<p>Retrieved from the version-aware index. This history is a <strong>controlled synthetic capability fixture</strong>, not historical APPS ground truth.</p>';
+  } else { content += '<p class="muted">No detailed AST evidence was returned for this result.</p>'; }
+  content += `<div class="score-row"><span>${route === "semantic" && responseData.execution?.reranker_triggered ? "Reranked retrieval score" : scoreLabel(route)}</span><strong>${scoreText(item.score)}</strong></div>`;
+  if (timeline.length) {
+    content += '<h2>Version lineage</h2><ol class="timeline">' + timeline.map(version => `<li><strong>${esc(version.version)}</strong>${esc(human(version.change_type))}${version.previous_similarity == null ? '' : `<br><span class="muted">Previous-version similarity ${scoreText(version.previous_similarity)}</span>`}</li>`).join('') + '</ol>';
+  }
+  content += '<p class="muted">Scores describe this retrieval route; they are not probabilities or global benchmark metrics.</p>';
+  const steps = responseData.execution?.steps;
+  if (Array.isArray(steps) && steps.length) content += `<details class="plan-details"><summary>View predefined route steps</summary><ol>${steps.map(step => `<li>${esc(step)}</li>`).join('')}</ol></details>`;
+  $('evidenceCard').innerHTML = content; $('evidenceCard').hidden = false;
+  $('evidenceCard').querySelectorAll('[data-evidence]').forEach(button => button.addEventListener('click', () => jumpToLine(evidence[Number(button.dataset.evidence)].line)));
+}
+function selectResult(index) {
+  selectedIndex = index;
+  const item = responseData.results[index];
+  const route = responseData.plan?.route;
+  const rows = codeRows(item);
+  const evidenceLines = new Set((item.evidence || []).map(entry => Number(entry?.line)));
+  const highlighted = highlight(rows.join('\n')).split('\n');
+  $('codeLines').innerHTML = highlighted.map((line, i) => `<span class="code-line${evidenceLines.has(i+1) ? ' matched' : ''}" id="source-line-${i+1}"><span class="line-no" aria-hidden="true">${i+1}</span><span class="line-text">${line || ' '}</span></span>`).join('');
+  $('codeLines').hidden = false; $('codeEmpty').hidden = true; $('fileStrip').hidden = false;
+  $('lineCount').textContent = `· ${rows.length} lines`;
+  $('fileName').textContent = `${resultTitle(item)}${item.version ? ` · ${item.version}` : ''}`;
+  $('fileName').title = $('fileName').textContent;
+  $('fileRank').textContent = `Result ${index+1} of ${responseData.results.length}`;
+  $('codeFooter').textContent = route === 'evolution' ? 'Controlled synthetic fixture · version history' : evidenceLines.size ? 'Highlighted lines · AST evidence' : route === 'semantic' ? 'Retrieved source · semantic similarity' : 'Retrieved source · inspect AST evidence';
+  $('copyButton').disabled = false; $('codeScroll').scrollTop = 0; $('codeScroll').scrollLeft = 0;
+  $('selectedPreview').innerHTML = `<article class="preview-card card"><div class="preview-head"><div>Python <span>· ${esc(resultId(item))}${item.version ? ` · ${esc(item.version)}` : ''}</span></div><button class="text-button" id="openCode">Expand code ↗</button></div><pre class="preview-code">${highlight(rows.slice(0,4).join('\n'))}${rows.length > 4 ? '\n<span class="tok-comment">…</span>' : ''}</pre></article>`;
+  $('openCode').addEventListener('click', () => { expandCode(true); $('codeLines').focus(); });
+  $('resultPicker').innerHTML = `<span class="result-picker-label">${responseData.results.length} results returned</span>` + responseData.results.map((result, i) => `<button class="result-tab" data-result="${i}" aria-pressed="${i === index}" aria-label="Open result ${i+1}: ${esc(resultId(result))}">#${i+1}</button>`).join('');
+  $('resultPicker').querySelectorAll('[data-result]').forEach(button => button.addEventListener('click', () => selectResult(Number(button.dataset.result))));
+  renderEvidence(item, route);
+}
+function renderResponse(data) {
+  responseData = {...data, results: Array.isArray(data.results) ? data.results : []};
+  const plan = data.plan || {};
+  const confidence = plan.confidence == null ? NaN : Number(plan.confidence);
+  const latency = data.total_ms == null ? NaN : Number(data.total_ms);
+  const reranker = data.execution?.reranker_triggered;
+  $('routeCard').innerHTML = `<div class="route-top"><span class="route-chip">${esc(routes[plan.route] || 'Unknown route')}</span><small>This query</small></div><p class="route-reason">${esc(plan.reason || 'No routing explanation returned.')}</p><dl class="query-metrics"><div><dt>Router score</dt><dd>${Number.isFinite(confidence) ? confidence.toFixed(2) : '—'}</dd></div><div><dt>Latency</dt><dd>${Number.isFinite(latency) ? `${latency.toFixed(1)} ms` : '—'}</dd></div><div><dt>Reranker</dt><dd>${reranker === true ? 'Applied' : reranker === false ? 'Not applied' : 'Not applicable'}</dd></div></dl><p class="routing-note">Rule-based routing · fixed heuristic score, not measured confidence. If this route does not fit your intent, rephrase your question.</p>`;
+  $('answer').hidden = false;
+  if (responseData.results.length) { selectResult(0); }
+  else {
+    const unavailable = data.execution?.available === false;
+    const emptyMessage = unavailable ? 'The version index is unavailable in this backend.' : 'This route returned no results. It may not support this phrasing; this does not establish that the code is absent.';
+    $('selectedPreview').innerHTML = `<div class="message card" role="status">${esc(emptyMessage)}<br><button class="text-button" id="emptyExamples">Try an example query</button></div>`;
+    $('emptyExamples').addEventListener('click', () => $('examplesDialog').showModal());
+    $('resultPicker').innerHTML = ''; $('evidenceCard').hidden = true; clearCode();
+    $('emptyTitle').textContent = unavailable ? 'Version index unavailable' : 'No results returned';
+    $('emptyDescription').textContent = 'Rephrase your query or choose an example to try another search.';
+    $('codeFooter').textContent = 'No results for this query';
+  }
+}
+async function runSearch() {
+  const query = $('query').value.trim(); if (busy) return;
+  if (!query) { toast('Enter a question to search the codebase.'); $('query').focus(); return; }
+  busy = true; responseData = null; clearCode(); expandCode(false);
+  $('searchButton').disabled = true; $('newSearch').disabled = true;
+  document.querySelectorAll('[data-example]').forEach(button => button.disabled = true);
+  $('welcome').hidden = true; $('searchContent').hidden = false; $('answer').hidden = true;
+  $('questionText').textContent = query; $('conversation').scrollTop = 0;
+  $('message').className = 'message card'; $('message').hidden = false;
+  $('message').innerHTML = '<span class="loading-dot"></span>Finding a route and searching the index…';
+  $('codeFooter').textContent = 'Searching the local index';
+  $('workspace').setAttribute('aria-busy', 'true');
+  const loadingTimer = setTimeout(() => { $('message').innerHTML = '<span class="loading-dot"></span>Still searching. The first semantic query can take longer while local models load.'; }, 4000);
+  const controller = new AbortController();
+  const requestTimer = setTimeout(() => controller.abort(), 180000);
+  try {
+    const response = await fetch('/search', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query, top_k:5}), signal:controller.signal});
+    const data = await response.json();
+    if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Search failed. Please try again.');
+    renderResponse(data); $('message').hidden = true;
+  } catch (error) {
+    $('answer').hidden = true; clearCode();
+    $('emptyTitle').textContent = 'Search could not complete';
+    $('emptyDescription').textContent = 'Your query is still in the composer. Try again when the backend is ready.';
+    $('message').className = 'message card error';
+    $('message').textContent = error.name === 'AbortError' ? 'The search timed out. The backend may still be loading models. Try again shortly.' : `Could not complete the search. ${error.message}`;
+    $('codeFooter').textContent = 'Search unavailable · please retry';
+  } finally {
+    clearTimeout(loadingTimer); clearTimeout(requestTimer); busy = false;
+    $('searchButton').disabled = false; $('newSearch').disabled = false;
+    document.querySelectorAll('[data-example]').forEach(button => button.disabled = false);
+    $('workspace').setAttribute('aria-busy', 'false'); checkHealth();
+  }
+}
+$('searchForm').addEventListener('submit', event => { event.preventDefault(); runSearch(); });
+$('query').addEventListener('keydown', event => {
+  if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); runSearch(); }
+});
+async function checkHealth() {
+  try {
+    const response = await fetch('/health', {signal:AbortSignal.timeout(5000)});
+    if (!response.ok) throw new Error('Unavailable');
+    const health = await response.json();
+    $('backendStatus').className = 'status ready';
+    $('backendStatus').querySelector('span').textContent = 'Backend ready';
+    $('backendStatus').title = health.models_loaded?.semantic ? 'Local service connected · semantic models warm' : 'Local service connected · semantic models load on first query';
+  } catch {
+    $('backendStatus').className = 'status'; $('backendStatus').querySelector('span').textContent = 'Backend offline';
+    $('backendStatus').title = 'Start the local backend with ./run_demo.sh';
+  }
+}
+checkHealth();
+</script>
 </body>
 </html>

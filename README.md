@@ -29,7 +29,7 @@ EmbeddingGemma is gated on Hugging Face. Make sure your account has access to:
 
 Then authenticate locally:
 
-    huggingface-cli login
+    hf auth login
 
 Run the complete demo:
 
@@ -116,15 +116,31 @@ Frozen dense fusion evaluated over 3,765 AppsRetrieval test queries against all 
 
 | Metric | Score |
 | --- | ---: |
-| NDCG@10 | 0.8535 |
-| MRR@10 | 0.8223 |
-| Recall@10 | 0.9495 |
-| Recall@20 | 0.9734 |
-| Recall@100 | 0.9936 |
+| NDCG@10 | 0.853100 |
+| MRR@10 | 0.821803 |
+| Recall@10 | 0.949535 |
+| Recall@20 | 0.973440 |
+| Recall@100 | 0.993625 |
 
 These scores come from the repository's local evaluation pipeline over the AppsRetrieval test split and qrels.
 
 No model weights, fusion weights, gate thresholds, or reranking parameters were tuned from these test results.
+
+### Benchmark Verification
+
+The values reported above are the canonical metrics recomputed directly from the exact ordered submission artifact.
+
+Verify them with:
+
+    python verify_submission.py
+
+The verifier loads the official AppsRetrieval test qrels and independently computes NDCG@10, MRR@10, MRR@100, Recall@10, Recall@20, and Recall@100 from the submitted top-100 rankings.
+
+Submission artifact SHA-256:
+
+    519fe7b0ad8bb4ae80f1da5192ceea067bc1c68b74cad6328ee7ac8a2de644d4
+
+Because the submission file contains an explicit ranking order, these artifact-derived metrics are the values used in the README and demo UI. Score-based evaluation can differ slightly when retrieval scores are tied because of tie-order conventions.
 
 The ranked inference artifact is:
 
@@ -358,3 +374,36 @@ Queries:
 Samsung PRISM GenAI Hackathon 3.0
 
 Theme 1: Agentic Code Intelligence
+
+## CPU portability and packaging
+
+The API and retriever defaults use CPU. Optional acceleration is explicit:
+`PRISM_DEVICE=mps ./run_demo.sh` on supported Apple hardware, or
+`PRISM_DEVICE=cuda ./run_demo.sh` with a compatible CUDA installation.
+Unavailable requested accelerators fail with an actionable error. Reranking
+remains disabled in the API unless `PRISM_ENABLE_RERANKER=1` is set.
+`/health` reports both settings.
+
+The launcher works from any directory on macOS/Linux and uses the repository
+virtual environment. Set `PRISM_OPEN_BROWSER=0` on headless machines.
+For Windows, activate the Python environment and run
+`python -m uvicorn api:app --host 127.0.0.1 --port 8000` from this directory.
+
+Docker (CPU): `docker build -t prism-ui .`, then
+`docker run --rm -p 8000:8000 -e HF_TOKEN -v prism-hf:/root/.cache/huggingface prism-ui`.
+Supply your own authorized Hugging Face token through the environment; tokens
+and model caches are not included in the image. The first semantic search
+downloads the gated models and requires network access and sufficient RAM.
+
+## MTEB result export
+
+Run `python export_mteb_results.py` to evaluate the unchanged frozen top-100
+rankings using MTEB's retrieval metrics and serialize its `TaskResult.to_dict()`.
+`submission/appsretrieval_results.json` is the MTEB result object; the original
+`AppsRetrieval_inference_results.json` remains the raw ordered ranking artifact.
+The accompanying provenance JSON records hashes, qrels revision, and method.
+This is evaluation of saved rankings, not a new model inference run or an
+end-to-end `mteb.evaluate` timing. Confidence/abstention metrics are omitted
+because ordinal ranking scores cannot recover original model confidence.
+MTEB rounds some metrics to five decimal places; the independently verified
+six-decimal canonical metrics above remain unchanged.
