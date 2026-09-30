@@ -18,7 +18,7 @@ PRISM finds and ranks existing Python code for natural-language questions. A rul
 | Shreel Singh | Team Member | ss9735@srmist.edu.in |
 
 - [Final presentation](submission/SRM_Team_Ctrl_Alt_Elite_1_Submission.pptx)
-- [Signed AI disclosure](submission/SRM_Team_Ctrl_Alt_Elite_1_AI_Disclosure.docx)
+- [Signed AI disclosure (PDF)](submission/SRM_Team_Ctrl_Alt_Elite_1_AI_Disclosure.pdf) · [Editable Word copy](submission/SRM_Team_Ctrl_Alt_Elite_1_AI_Disclosure.docx)
 - [Demo video (3 minutes 30 seconds)](https://drive.google.com/file/d/1Y7nbuiszgRgTFUJU7GKSjsI3tVVWGHv8/view?usp=sharing)
 - [Submission release and evaluation files](https://github.com/SinghDevansh-2006/prism-code-intelligence/releases/tag/PRISM_GENAI_HACKATHON_Y2026)
 
@@ -96,28 +96,7 @@ Evolutionary:
 
 ## Architecture
 
-    Natural-language query
-            |
-            v
-    +----------------------+
-    | Rule-based Query Router |
-    +----------------------+
-       |       |       |       |
-       |       |       |       +--> Evolutionary Retrieval
-       |       |       +----------> Structural AST Search
-       |       +------------------> Exact Usage Search
-       +--------------------------> Semantic Retrieval
-                                        |
-                          +---------------------------+
-                          | EmbeddingGemma            |
-                          | Qwen3-Embedding-0.6B      |
-                          +---------------------------+
-                                        |
-                              score normalization
-                                        |
-                                  65 / 35 fusion
-                                        |
-                                  ranked code
+![PRISM architecture: a rule-based router selects semantic fusion, exact usage, structural search or version retrieval.](docs/architecture.png)
 
 Semantic retrieval independently scores the corpus with both embedding models. Each model receives the full query. Its normalized query embedding is compared with stored document embeddings using a dot product. Each model’s document scores are then standardized per query, and the two standardized scores are combined:
 
