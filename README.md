@@ -1,47 +1,79 @@
 # PRISM Agentic Code Intelligence
 
-Local agentic code retrieval built for the Samsung PRISM GenAI Hackathon 3.0 — Theme 1: Agentic Code Intelligence.
+Samsung PRISM GenAI Hackathon 3.0, Theme 1: Agentic Code Intelligence.
 
-The system accepts natural-language questions about code and dynamically routes them through four complementary retrieval strategies:
+PRISM finds and ranks existing Python code for natural-language questions. A rule-based router selects semantic, exact-usage, structural or version retrieval. The browser interface shows ranked snippets and the evidence available for each route.
 
-- Semantic retrieval using EmbeddingGemma + Qwen3-Embedding
-- Exact usage search using AST-derived symbol and import metadata
-- Structural retrieval using scope-aware AST and call-order reasoning
-- Evolutionary retrieval across multiple versions of a logical code artifact
+## Submission
 
-The system focuses on retrieval: finding and ranking relevant code rather than generating replacement code.
+**Team:** SRM_Team Ctrl Alt Elite_1
 
----
+**Institution:** SRM Institute of Science and Technology
 
-## Quick Start
+| Member | Role | Email |
+| --- | --- | --- |
+| Devansh Singh | Team Lead | ds8467@srmist.edu.in |
+| Sankalp Kumar | Team Member | sk4156@srmist.edu.in |
+| Ved Kumar | Team Member | vk9977@srmist.edu.in |
+| Shreel Singh | Team Member | ss9735@srmist.edu.in |
 
-Python 3.11 is recommended.
+- [Final presentation](submission/SRM_Team_Ctrl_Alt_Elite_1_Submission.pptx)
+- [Signed AI disclosure](submission/SRM_Team_Ctrl_Alt_Elite_1_AI_Disclosure.docx)
+- [Demo video (3 minutes 30 seconds)](https://drive.google.com/file/d/1Y7nbuiszgRgTFUJU7GKSjsI3tVVWGHv8/view?usp=sharing)
+- [Submission release and evaluation files](https://github.com/SinghDevansh-2006/prism-code-intelligence/releases/tag/PRISM_GENAI_HACKATHON_Y2026)
 
-Create the environment:
+The tagged repository contains the source, requirements, runtime indexes, final presentation, signed disclosure and evaluation files. The video is hosted on Drive. No APK or SDK is required for this browser-based Python application.
 
-    python3.11 -m venv .venv
-    source .venv/bin/activate
-    pip install -r requirements.txt
+## Setup
 
-EmbeddingGemma is gated on Hugging Face. Make sure your account has access to:
+Use Git and Python 3.11. Semantic and version retrieval need internet access on first use to download pretrained models. Accept access terms for [google/embeddinggemma-300m](https://huggingface.co/google/embeddinggemma-300m) with your own Hugging Face account before authenticating. Model weights and access tokens are not bundled.
 
-    google/embeddinggemma-300m
+### macOS or Linux
 
-Then authenticate locally:
+```bash
+git clone https://github.com/SinghDevansh-2006/prism-code-intelligence.git
+cd prism-code-intelligence
+git checkout PRISM_GENAI_HACKATHON_Y2026
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+hf auth login
+./run_demo.sh
+```
 
-    hf auth login
+The launcher starts the API, warms the semantic models and opens http://127.0.0.1:8000/. It may take several minutes to download and load the models on first use. Model loading needs sufficient free RAM and disk space; no minimum hardware benchmark is claimed.
 
-Run the complete demo:
+### Windows PowerShell
 
-    ./run_demo.sh
+```powershell
+git clone https://github.com/SinghDevansh-2006/prism-code-intelligence.git
+cd prism-code-intelligence
+git checkout PRISM_GENAI_HACKATHON_Y2026
+py -3.11 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\hf.exe auth login
+$env:PRISM_DEVICE = "cpu"
+.\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
+```
 
-Open:
+Open http://127.0.0.1:8000/ manually. The first semantic or version query loads its models. These commands use the virtual environment directly, avoiding PowerShell activation-policy changes.
 
-    http://127.0.0.1:8000/
+### Docker on CPU
 
-The launcher starts the FastAPI backend, pre-warms the semantic models, and opens the browser UI.
+```bash
+docker build -t prism-ui .
+docker run --rm -p 8000:8000 -e HF_TOKEN -v prism-hf:/root/.cache/huggingface prism-ui
+```
 
----
+Set `HF_TOKEN` in your shell to your own authorized Hugging Face token before running the container. Do not commit it. The volume retains downloaded models between runs. Exact-usage and structural queries can use the bundled indexes without model downloads.
+
+### Startup troubleshooting
+
+- **Access denied for EmbeddingGemma:** Accept its access terms, then log in with the same Hugging Face account.
+- **Port 8000 is occupied:** Stop the other service, or run `python -m uvicorn api:app --host 127.0.0.1 --port 8001` and open that port.
+- **First search is slow:** Allow model downloads and loading to finish. Inspect the terminal for download, memory or authentication errors.
+- **Launcher diagnostics:** `run_demo.sh` writes API logs to the system temporary directory as `prism_api_<port>.log`. Set `PRISM_OPEN_BROWSER=0` on headless machines.
+- **Stopping:** A manually started Uvicorn server stops with Ctrl+C. The demo launcher starts a background server; stop that process before changing its device or port configuration.
 
 ## Example Queries
 
@@ -61,7 +93,6 @@ Evolutionary:
 
     show binary search version history
 
----
 
 ## Architecture
 
@@ -69,7 +100,7 @@ Evolutionary:
             |
             v
     +----------------------+
-    | Agentic Query Router |
+    | Rule-based Query Router |
     +----------------------+
        |       |       |       |
        |       |       |       +--> Evolutionary Retrieval
@@ -88,14 +119,20 @@ Evolutionary:
                                         |
                                   ranked code
 
-Semantic retrieval independently scores the corpus with both embedding models. Their score distributions are normalized per query and fused using the frozen weighting:
+Semantic retrieval independently scores the corpus with both embedding models. Each model receives the full query. Its normalized query embedding is compared with stored document embeddings using a dot product. Each model’s document scores are then standardized per query, and the two standardized scores are combined:
 
 - 65% EmbeddingGemma
 - 35% Qwen3-Embedding-0.6B
 
+```text
+z_model = (score_model - mean(scores_model)) / (std(scores_model) + 1e-8)
+fusion_score = 0.65 * z_gemma + 0.35 * z_qwen
+```
+
+Results are sorted by descending fusion score. Rank 1 is the highest-scoring match under this method, not a guarantee that the code is correct or best for every use. The weights apply to scores, not portions of the query. Exact-usage and structural routes use their own evidence scores. Router confidence is a heuristic, not a calibrated probability.
+
 The engine also measures retrieval confidence. Confidence-gated cross-encoder reranking was experimentally evaluated, but dense fusion remains the screening retrieval configuration because reranking did not improve held-out AppsRetrieval NDCG@10.
 
----
 
 ## Retrieval Results
 
@@ -148,9 +185,10 @@ The ranked inference artifact is:
 
 It contains all 3,765 test queries with the top 100 ranked corpus IDs for each query.
 
----
 
-## Agentic Retrieval Routes
+## Retrieval Routes
+
+The deterministic router checks version-history patterns first, then structural patterns, then exact-usage patterns. Other queries use semantic retrieval. It chooses one route per request.
 
 ### 1. Semantic Retrieval
 
@@ -174,7 +212,7 @@ Used for explicit symbol, API, function, or import questions such as:
 
     which files import math?
 
-The engine searches AST-derived metadata rather than depending on semantic similarity alone.
+The engine searches AST-derived metadata and returns matching source evidence. Identifier matching can include case-insensitive or partial matches, so inspect the evidence for the intended symbol.
 
 ### 3. Structural Retrieval
 
@@ -182,7 +220,7 @@ Used for structural relationships such as:
 
     which functions call range before print?
 
-The structural index stores scope-aware information including calls, imports, functions, classes, and line numbers so constraints can be verified structurally.
+The structural index records calls, imports, functions, classes and line numbers within their scopes. It checks source ordering and other supported constraints. Source order does not establish runtime execution order.
 
 ### 4. Evolutionary Retrieval
 
@@ -201,7 +239,6 @@ The version-aware index stores:
 
 The included multi-version example is a controlled capability fixture rather than historical APPS version ground truth.
 
----
 
 ## API
 
@@ -235,7 +272,6 @@ The response includes:
 - AST evidence when applicable
 - version timeline when applicable
 
----
 
 ## Repository Structure
 
@@ -271,7 +307,6 @@ The response includes:
 
 Additional benchmark, analysis, and test scripts are retained for reproducibility and ablation evidence.
 
----
 
 ## Key Design Decisions
 
@@ -297,7 +332,6 @@ The prototype does not require a paid inference API. It was developed and tested
 
 The evolutionary index is append-only. New versions can be embedded and added without rebuilding the entire version store.
 
----
 
 ## Reproducibility
 
@@ -317,7 +351,6 @@ Important experiment and evaluation scripts include:
 
 Large intermediate embedding caches are excluded from Git because they are reproducible and unnecessary for running the packaged demo.
 
----
 
 ## Demo Behavior
 
@@ -327,9 +360,8 @@ A cold semantic request may take tens of seconds while pretrained models are loa
 
 The provided run_demo.sh script pre-warms the semantic stack so judge-facing queries run against an already-loaded service.
 
-Exact usage, structural, and evolutionary routes are lightweight after their indexes are available.
+Exact-usage and structural routes use the bundled metadata. Evolution retrieval also needs Gemma, so its first request can incur model loading.
 
----
 
 ## Limitations
 
@@ -339,19 +371,17 @@ Exact usage, structural, and evolutionary routes are lightweight after their ind
 - The included evolutionary demonstration uses a controlled multi-version fixture.
 - Third-party pretrained models remain subject to their original licenses and access requirements.
 
----
 
 ## Model Dependencies
 
-Primary pretrained model dependencies:
+Pretrained model dependencies:
 
 - google/embeddinggemma-300m
 - Qwen/Qwen3-Embedding-0.6B
-- mixedbread-ai/mxbai-rerank-xsmall-v1
+- mixedbread-ai/mxbai-rerank-xsmall-v1 (optional experimental reranker, disabled by default)
 
 Third-party model and dataset licenses and terms continue to apply.
 
----
 
 ## Submission Artifact
 
@@ -367,7 +397,6 @@ Queries:
 
     3,765
 
----
 
 ## Hackathon
 
@@ -375,25 +404,9 @@ Samsung PRISM GenAI Hackathon 3.0
 
 Theme 1: Agentic Code Intelligence
 
-## CPU portability and packaging
+## Runtime settings
 
-The API and retriever defaults use CPU. Optional acceleration is explicit:
-`PRISM_DEVICE=mps ./run_demo.sh` on supported Apple hardware, or
-`PRISM_DEVICE=cuda ./run_demo.sh` with a compatible CUDA installation.
-Unavailable requested accelerators fail with an actionable error. Reranking
-remains disabled in the API unless `PRISM_ENABLE_RERANKER=1` is set.
-`/health` reports both settings.
-
-The launcher works from any directory on macOS/Linux and uses the repository
-virtual environment. Set `PRISM_OPEN_BROWSER=0` on headless machines.
-For Windows, activate the Python environment and run
-`python -m uvicorn api:app --host 127.0.0.1 --port 8000` from this directory.
-
-Docker (CPU): `docker build -t prism-ui .`, then
-`docker run --rm -p 8000:8000 -e HF_TOKEN -v prism-hf:/root/.cache/huggingface prism-ui`.
-Supply your own authorized Hugging Face token through the environment; tokens
-and model caches are not included in the image. The first semantic search
-downloads the gated models and requires network access and sufficient RAM.
+CPU is the default. Set `PRISM_DEVICE=mps` for supported Apple hardware or `PRISM_DEVICE=cuda` for a compatible CUDA installation. Unsupported devices fail with an explanatory error. The API only enables the experimental reranker when `PRISM_ENABLE_RERANKER=1`; leave it unset for the submitted configuration. `/health` reports the device, reranker setting and model loading state.
 
 ## MTEB result export
 
@@ -426,4 +439,10 @@ The GitHub Actions packaging check builds a fresh Linux CPU container and
 tests health, bundled HTML, exact-usage and structural retrieval. It does not
 validate gated semantic/evolution model downloads or reproduce benchmark
 inference. Those still require the separate clean-machine verification.
-Check the actual Actions outcome before claiming Docker build success.
+See [GitHub Actions](https://github.com/SinghDevansh-2006/prism-code-intelligence/actions/workflows/packaging.yml) for current build status.
+
+### Verification record
+
+Local CPU checks have exercised all four retrieval routes with available model caches. The team also confirms Windows operation. The Linux CI check covers a fresh container build, health, HTML, exact-usage and structural routes. This does not establish fresh-cache gated-model downloads on every platform or a new full benchmark inference run.
+
+To check your installation, open `/health`, submit each example query above, inspect returned source evidence, then run `python verify_submission.py` to recompute metrics from the saved rankings. The metric verifier needs access to the official qrels dataset or an existing local cache. Running it does not regenerate model embeddings or rankings.
