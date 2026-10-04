@@ -56,7 +56,6 @@ jobs:
     env:
       PRISM_DEVICE: cpu
       HF_HUB_OFFLINE: '1'
-      MTEB_CACHE: ${{ runner.temp }}/prism-mteb
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -69,4 +68,6 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip check
       - name: Verify Windows cleanup and regression suite
+        env:
+          MTEB_CACHE: ${{ runner.temp }}/prism-mteb
         run: python -m unittest discover -s tests -v
