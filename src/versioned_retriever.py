@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 import torch
 from sentence_transformers import SentenceTransformer
+from src.model_revisions import MODEL_REVISIONS
 
 from src.version_index import (
     exact_fingerprint,
@@ -68,6 +69,7 @@ class VersionedSemanticIndex:
 
             self.model = SentenceTransformer(
                 "google/embeddinggemma-300m",
+                revision=MODEL_REVISIONS['google/embeddinggemma-300m'],
                 device=device,
                 model_kwargs={
                     "torch_dtype": torch.float32
@@ -90,6 +92,8 @@ class VersionedSemanticIndex:
 
     def _load_metadata(self):
         if not self.versions_path.exists():
+            if self.embeddings_path.exists() and self.embeddings_path.stat().st_size:
+                raise RuntimeError("Embedding file exists without version metadata")
             return
 
         with open(
@@ -200,6 +204,9 @@ class VersionedSemanticIndex:
                 f"got {embedding.shape}"
             )
 
+        if not np.isfinite(embedding).all():
+            raise ValueError("Embedding contains non-finite values")
+
         with open(
             self.embeddings_path,
             "ab"
@@ -239,6 +246,8 @@ class VersionedSemanticIndex:
         language="python",
         metadata=None,
     ):
+        logical_id, version = str(logical_id), str(version)
+        metadata = metadata or {}
         total_start = time.perf_counter()
 
         key = (
@@ -315,17 +324,18 @@ class VersionedSemanticIndex:
 
         embedding_start = time.perf_counter()
 
-        embedding = (
-            self.model.encode_document(
-                [code],
-                normalize_embeddings=True,
-                convert_to_numpy=True,
+        if metadata.get("operation") == "deleted":
+            embedding = np.zeros(EMBEDDING_DIM, dtype=np.float32)
+            change_type = "deleted"
+        elif change_type == "unchanged":
+            previous_index = next(i for i in range(len(self.records)-1, -1, -1)
+                                  if self.records[i]["logical_id"] == logical_id)
+            embedding = np.array(self._embedding_matrix()[previous_index], copy=True)
+        else:
+            embedding = self.model.encode_document(
+                [code], normalize_embeddings=True, convert_to_numpy=True,
                 show_progress_bar=False,
-            )[0]
-            .astype(
-                np.float32
-            )
-        )
+            )[0].astype(np.float32)
 
         embedding_ms = (
             time.perf_counter()
@@ -373,14 +383,18 @@ class VersionedSemanticIndex:
             time.perf_counter()
         )
 
-        # Embedding first; metadata second.
-        self._append_embedding(
-            embedding
-        )
-
-        self._append_record(
-            record
-        )
+        # One writer per index. Roll back both files on a failed append.
+        offsets = {p: p.stat().st_size if p.exists() else 0
+                   for p in (self.embeddings_path, self.versions_path)}
+        try:
+            self._append_embedding(embedding)
+            self._append_record(record)
+        except Exception:
+            for path, offset in offsets.items():
+                if path.exists():
+                    with path.open("r+b") as handle:
+                        handle.truncate(offset)
+            raise
 
         persistence_ms = (
             time.perf_counter()
@@ -446,6 +460,30 @@ class VersionedSemanticIndex:
             []
         )
 
+    def _selected_indices(self, scope="all", commit=None):
+        if scope == "all":
+            selected = range(len(self.records))
+        elif scope == "latest":
+            snapshot_path = self.root / "snapshots.json"
+            if snapshot_path.exists():
+                snapshots = json.loads(snapshot_path.read_text())
+                return self._selected_indices("commit", snapshots["commits"][-1])
+            last = {r["logical_id"]: i for i, r in enumerate(self.records)}
+            selected = last.values()
+        elif scope == "commit":
+            path = self.root / "snapshots.json"
+            if not path.exists():
+                raise ValueError("Commit selection requires an imported Git history index")
+            data = json.loads(path.read_text())
+            if commit not in data["snapshots"]:
+                raise ValueError("Choose a full commit ID returned by /versions")
+            files = data["snapshots"][commit]
+            selected = [i for i, r in enumerate(self.records)
+                        if files.get(r["logical_id"]) == r["version"]]
+        else:
+            raise ValueError("Unknown version scope")
+        return np.asarray([i for i in selected if self.records[i]["change_type"] != "deleted"], dtype=int)
+
     # --------------------------------------------------
     # SEARCH ACROSS ALL VERSIONS
     # --------------------------------------------------
@@ -454,7 +492,12 @@ class VersionedSemanticIndex:
         self,
         query,
         top_k=10,
+        scope="all",
+        commit=None,
     ):
+        active = self._selected_indices(scope, commit)
+        if not query.strip() or top_k < 1:
+            raise ValueError("A nonempty query and positive top_k are required")
         if not self.records:
             return {
                 "query": query,
@@ -500,32 +543,10 @@ class VersionedSemanticIndex:
             @ matrix.T
         )
 
-        result_count = min(
-            top_k,
-            len(self.records),
-        )
+        scores_for_sort = scores[active]
+        result_count = min(top_k, len(active))
 
-        if (
-            result_count
-            == len(self.records)
-        ):
-            order = np.argsort(
-                -scores
-            )
-
-        else:
-            order = np.argpartition(
-                -scores,
-                result_count - 1,
-            )[
-                :result_count
-            ]
-
-            order = order[
-                np.argsort(
-                    -scores[order]
-                )
-            ]
+        order = active[np.argsort(-scores_for_sort, kind="stable")[:result_count]]
 
         search_ms = (
             time.perf_counter()
@@ -572,10 +593,8 @@ class VersionedSemanticIndex:
                             "previous_similarity"
                         ],
 
-                    "code":
-                        record[
-                            "code"
-                        ],
+                    "metadata": record.get("metadata", {}),
+                    "code": record["code"],
                 }
             )
 

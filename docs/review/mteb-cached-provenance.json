@@ -1,0 +1,14 @@
+{
+  "method": "mteb.evaluate with custom SearchProtocol",
+  "fresh_embedding_inference": false,
+  "elapsed_seconds": 29.191817291997722,
+  "device": "cpu",
+  "fusion": ".65*zscore(Gemma cosine)+.35*zscore(Qwen cosine), across full corpus",
+  "cached_embedding_sha256": {
+    "embeddinggemma_documents.npy": "86ffd88cecb185254e6d36bea555df6f0ab58a90b6f1e09481428b9c0d864e93",
+    "qwen_documents.npy": "35be2d16287000ee3bd46c161d546f925ba510caf5a690794c2808bae939a6c9",
+    "embeddinggemma_queries.npy": "38902bca230757162909f1e96a0be078bc8b4e4d5ffe3e69b5c1b503552b10b0",
+    "qwen_queries.npy": "5481788b3d0c095e1697ca394c5a38bb79057401805253f4195768ecc82b9588"
+  },
+  "limitation": "Cached embeddings exclude model inference time and do not prove fresh-download reproducibility."
+}

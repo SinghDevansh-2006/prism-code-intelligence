@@ -1,5 +1,7 @@
 import os
 import time
+import json
+from typing import Literal
 from pathlib import Path
 
 import torch
@@ -7,7 +9,7 @@ import torch
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from src.agentic_engine import AgenticCodeEngine
 
@@ -59,7 +61,7 @@ if DEVICE == "cuda" and not torch.cuda.is_available():
 
 VERSION_INDEX_ROOT = os.environ.get(
     "PRISM_VERSION_INDEX",
-    str(ROOT / "runtime_index/versioned_semantic_test"),
+    str(ROOT / "runtime_index/git-history"),
 )
 
 
@@ -71,8 +73,11 @@ ENABLE_RERANKER = (
     in {"1", "true", "yes"}
 )
 
+INDEX_ROOT = Path(os.environ.get("PRISM_INDEX_DIR", str(ROOT / "runtime_index"))).resolve()
+INDEX_CONFIG = json.loads((INDEX_ROOT / "config.json").read_text())
+
 engine = AgenticCodeEngine(
-    index_dir=str(ROOT / "runtime_index"),
+    index_dir=str(INDEX_ROOT),
     device=DEVICE,
     enable_reranker=ENABLE_RERANKER,
     version_index_root=VERSION_INDEX_ROOT,
@@ -91,6 +96,17 @@ class SearchRequest(BaseModel):
         min_length=1,
         max_length=20000,
     )
+
+    @field_validator("query")
+    @classmethod
+    def meaningful_query(cls, value):
+        value = value.strip()
+        if not value:
+            raise ValueError("Enter a question containing non-whitespace characters")
+        return value
+
+    version_scope: Literal["auto", "all", "latest", "commit"] = "auto"
+    version_commit: str | None = None
 
     top_k: int = Field(
         default=10,
@@ -120,6 +136,8 @@ def health():
     return {
         "status": "ok",
         "device": engine.device,
+        "corpus_documents": INDEX_CONFIG["corpus_size"],
+        "corpus_scope": INDEX_CONFIG.get("corpus_scope", "training-demo"),
         "reranker_enabled": engine.enable_reranker,
         "service": "PRISM Agentic Code Intelligence",
         "version": "1.0.0",
@@ -158,10 +176,26 @@ def search(request: SearchRequest):
         return engine.search(
             request.query,
             top_k=request.top_k,
+            version_scope=request.version_scope,
+            version_commit=request.version_commit,
         )
 
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except OSError as exc:
+        raise HTTPException(status_code=503, detail=(
+            "A required index or model could not be loaded. Check the README setup, "
+            "Hugging Face model access and network connection, then retry."
+        )) from exc
     except Exception as exc:
         raise HTTPException(
             status_code=500,
             detail=str(exc),
         ) from exc
+
+
+@app.get("/versions")
+def versions():
+    path = Path(VERSION_INDEX_ROOT) / "snapshots.json"
+    data = json.loads(path.read_text()) if path.exists() else {"commits": []}
+    return {"commits": data["commits"], "scope": "Selected Python paths in bounded first-parent history"}

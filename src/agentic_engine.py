@@ -1,10 +1,20 @@
 import time
+from threading import RLock
+from functools import wraps
 from pathlib import Path
 
-from src.query_router import route_query
+from src.query_router import route_query, QueryPlan
 from src.retriever import CodeRetriever
 from src.structural_search import StructuralSearchEngine
 from src.versioned_retriever import VersionedSemanticIndex
+
+
+def serialized_load(method):
+    @wraps(method)
+    def load(self, *args, **kwargs):
+        with self._load_lock:
+            return method(self, *args, **kwargs)
+    return load
 
 
 class AgenticCodeEngine:
@@ -23,6 +33,8 @@ class AgenticCodeEngine:
             version_index_root
         )
 
+        self._load_lock = RLock()
+
         # Everything is lazy-loaded.
         self.semantic_engine = None
         self.structural_engine = None
@@ -32,6 +44,7 @@ class AgenticCodeEngine:
     # LAZY ENGINE LOADERS
     # ======================================================
 
+    @serialized_load
     def _get_semantic_engine(self):
         if self.semantic_engine is None:
             print(
@@ -56,6 +69,7 @@ class AgenticCodeEngine:
 
         return self.semantic_engine
 
+    @serialized_load
     def _get_structural_engine(self):
         if self.structural_engine is None:
             print(
@@ -70,6 +84,7 @@ class AgenticCodeEngine:
 
         return self.structural_engine
 
+    @serialized_load
     def _get_version_engine(self):
         if self.version_engine is not None:
             return self.version_engine
@@ -118,12 +133,24 @@ class AgenticCodeEngine:
         self,
         query,
         top_k=10,
+        version_scope="auto",
+        version_commit=None,
     ):
+        query = query.strip()
+        if not query:
+            raise ValueError("Enter a nonempty query")
+        if not 1 <= top_k <= 50:
+            raise ValueError("top_k must be between 1 and 50")
         total_start = time.perf_counter()
 
         plan = route_query(
             query
         )
+
+        if version_scope not in {"auto", "all", "latest", "commit"}:
+            raise ValueError("Invalid version scope")
+        if version_scope != "auto":
+            plan = QueryPlan("evolution", 1.0, "User explicitly selected a version scope.", [])
 
         # --------------------------------------------------
         # SEMANTIC
@@ -290,6 +317,7 @@ class AgenticCodeEngine:
                     version_engine.search(
                         query,
                         top_k=top_k,
+                        scope="all" if version_scope == "auto" else version_scope, commit=version_commit,
                     )
                 )
 
@@ -306,6 +334,10 @@ class AgenticCodeEngine:
                         )
                     )
 
+                    if version_scope == "commit":
+                        selected_version = result["version"]
+                        end = next(i for i, item in enumerate(history) if item["version"] == selected_version)
+                        history = history[:end+1]
                     timeline = [
                         {
                             "version":

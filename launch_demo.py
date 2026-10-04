@@ -46,6 +46,11 @@ def main():
     expected = os.environ.get('PRISM_DEVICE', 'cpu').lower()
     if state.get('device') != expected:
         raise RuntimeError(f'Existing server reports device {state.get("device", "unknown")}; stop it and relaunch for {expected}')
+    index_root = Path(os.environ.get('PRISM_INDEX_DIR', str(ROOT / 'runtime_index')))
+    index_config = json.loads((index_root / 'config.json').read_text())
+    expected_scope = index_config.get('corpus_scope', 'training-demo')
+    if state.get('corpus_documents') != index_config['corpus_size'] or state.get('corpus_scope') != expected_scope:
+        raise RuntimeError('Existing server uses a different corpus; stop it or select another PRISM_PORT before relaunching')
     if not state['models_loaded']['semantic']:
         print('Warming semantic models; first use may download models.', flush=True)
         request = urllib.request.Request(BASE + '/search', data=json.dumps({

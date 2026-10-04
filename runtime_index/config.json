@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "corpus_size": 5000,
+  "corpus_size": 8765,
   "dense_retrieval": {
     "embeddinggemma_weight": 0.65,
     "qwen_weight": 0.35,
@@ -13,18 +13,13 @@
     "threshold_source": "4000 training queries"
   },
   "reranking": {
-    "enabled": true,
+    "enabled": false,
     "model": "mixedbread-ai/mxbai-rerank-xsmall-v1",
     "top_k": 20,
     "beta": 0.2,
     "beta_source": "training-only low-confidence sample"
   },
   "output_top_k": 10,
-  "validation": {
-    "ndcg@10": 0.920441,
-    "mrr": 0.903767,
-    "recall@10": 0.974,
-    "recall@20": 0.984,
-    "recall@100": 0.993
-  }
+  "corpus_scope": "official-full",
+  "corpus_revision": "f22508f96b7a36c2415181ed8bb76f76e04ae2d5"
 }

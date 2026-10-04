@@ -1,0 +1,95 @@
+{
+  "health": {
+    "status": "ok",
+    "device": "cpu",
+    "corpus_documents": 8765,
+    "corpus_scope": "official-full",
+    "reranker_enabled": false,
+    "service": "PRISM Agentic Code Intelligence",
+    "version": "1.0.0",
+    "uptime_seconds": 0.02572011947631836,
+    "routes": [
+      "semantic",
+      "exact_usage",
+      "structural",
+      "evolution"
+    ],
+    "models_loaded": {
+      "semantic": false,
+      "structural": false,
+      "evolution": false
+    }
+  },
+  "semantic_examples": [
+    {
+      "query_id": "q5001",
+      "frozen_top1": "d5001",
+      "api_top1": "d5001",
+      "matches_frozen_top1": true,
+      "elapsed_ms": 5766.877999994904,
+      "uniform_top1": "d5001",
+      "matches_uniform_top1": true
+    },
+    {
+      "query_id": "q5002",
+      "frozen_top1": "d5002",
+      "api_top1": "d5002",
+      "matches_frozen_top1": true,
+      "elapsed_ms": 433.0713749950519,
+      "uniform_top1": "d5002",
+      "matches_uniform_top1": true
+    },
+    {
+      "query_id": "q5003",
+      "frozen_top1": "d8044",
+      "api_top1": "d8218",
+      "matches_frozen_top1": false,
+      "elapsed_ms": 587.5392919988371,
+      "uniform_top1": "d8218",
+      "matches_uniform_top1": true
+    },
+    {
+      "query_id": "q5004",
+      "frozen_top1": "d5004",
+      "api_top1": "d5004",
+      "matches_frozen_top1": true,
+      "elapsed_ms": 883.2926670002053,
+      "uniform_top1": "d5004",
+      "matches_uniform_top1": true
+    },
+    {
+      "query_id": "q5008",
+      "frozen_top1": "d6004",
+      "api_top1": "d6004",
+      "matches_frozen_top1": true,
+      "elapsed_ms": 1657.2977080068085,
+      "uniform_top1": "d6004",
+      "matches_uniform_top1": true
+    }
+  ],
+  "version_scopes": [
+    {
+      "scope": "all",
+      "commit": null,
+      "versions": [
+        "52af61b60c221907831a2afefcd0b5a58e15e4ea",
+        "b9c588842c00b88edc933a453e19c1f50c5d896f"
+      ]
+    },
+    {
+      "scope": "latest",
+      "commit": null,
+      "versions": [
+        "b9c588842c00b88edc933a453e19c1f50c5d896f"
+      ]
+    },
+    {
+      "scope": "commit",
+      "commit": "52af61b60c221907831a2afefcd0b5a58e15e4ea",
+      "versions": [
+        "52af61b60c221907831a2afefcd0b5a58e15e4ea"
+      ]
+    }
+  ],
+  "scope": "Five integration/parity examples, not a new accuracy benchmark"
+}

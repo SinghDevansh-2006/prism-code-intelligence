@@ -129,6 +129,8 @@
     .composer-tools span { font-size: 11px; color: var(--muted); }
     .send { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: linear-gradient(135deg,#8251ed,#d348e7); color: white; }
     .send:hover { filter: brightness(1.12); }
+    .scope-controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px; font-size:12px; color:var(--muted); }
+    .scope-controls select { max-width:100%; border:1px solid var(--line); border-radius:8px; padding:7px; background:var(--surface); color:var(--ink); }
     .composer-caption { text-align: center; margin: 8px 0 0; font-size: 11px; color: var(--muted); }
     .message { margin: 14px 0; padding: 13px; font-size: 14px; line-height: 1.7; }
     .message.error { color: var(--red); border-color: var(--red); }
@@ -223,7 +225,7 @@
             <p class="welcome-text">Ask about behavior, an API, a code relationship, or version history. PRISM selects a retrieval route and shows the supporting evidence.</p>
             <div class="eyebrow">Start with a question</div>
             <div class="examples" id="welcomeExamples"></div>
-            <p class="welcome-note">Choose a result to explore its source code alongside the evidence.</p>
+            <p class="welcome-note">Results are ranked by relevance, not verified correctness. Review source before reuse.</p>
           </div>
           <div id="searchContent" hidden>
             <div class="identity"><div class="avatar"><svg><use href="#i-search"/></svg></div><strong>Your query</strong><span>Natural-language search</span></div>
@@ -239,12 +241,17 @@
           </div>
         </div>
         <div class="composer-area">
+          <div class="scope-controls">
+            <label for="versionScope">Search in</label>
+            <select id="versionScope"><option value="auto">Code corpus / automatic route</option><option value="all">All historical versions</option><option value="latest">Latest indexed snapshot</option><option value="commit" disabled id="commitScopeOption">Selected Git commit</option></select>
+            <select id="versionCommit" aria-label="Git commit" hidden></select>
+          </div>
           <form class="composer" id="searchForm">
             <label class="sr-only" for="query">Search the codebase</label>
             <textarea id="query" placeholder="What would you like to find in the codebase?" maxlength="20000" spellcheck="false" required></textarea>
             <div class="composer-actions"><div class="composer-tools"><button type="button" class="icon-button" data-open="examplesDialog" aria-label="Choose an example query" title="Choose an example query"><svg><use href="#i-spark"/></svg></button><span>⌘ / Ctrl + Enter</span></div><button id="searchButton" type="submit" class="send" aria-label="Find code" title="Find code"><svg><use href="#i-arrow"/></svg></button></div>
           </form>
-          <p class="composer-caption">Retrieval with evidence · no generated code</p>
+          <p class="composer-caption" id="corpusCaption">Retrieval with evidence · no generated code</p>
         </div>
       </section>
       <section class="code-pane" id="codePane" aria-label="Selected source code">
@@ -260,7 +267,7 @@
   </div>
 </div>
 <dialog id="examplesDialog" aria-labelledby="examplesTitle"><div class="dialog-head"><h2 id="examplesTitle">Four ways to find code</h2><button class="icon-button" data-close aria-label="Close examples"><svg><use href="#i-close"/></svg></button></div><p class="dialog-note">Choose a question. PRISM selects the retrieval route automatically.</p><div class="examples" id="dialogExamples"></div></dialog>
-<dialog id="benchmarkDialog" aria-labelledby="benchmarkTitle"><div class="dialog-head"><h2 id="benchmarkTitle">AppsRetrieval benchmark</h2><button class="icon-button" data-close aria-label="Close benchmark"><svg><use href="#i-close"/></svg></button></div><span class="benchmark-tag">GLOBAL / FIXED · NOT PER-QUERY</span><p class="dialog-note">Frozen 65% EmbeddingGemma / 35% Qwen fusion.<br>3,765 test queries · 8,765 corpus documents.</p><dl class="benchmark-grid"><div><dt>NDCG@10</dt><dd>0.853100</dd></div><div><dt>MRR@10</dt><dd>0.821803</dd></div><div><dt>MRR@100</dt><dd>0.824138</dd></div><div><dt>Recall@10</dt><dd>0.949535</dd></div><div><dt>Recall@20</dt><dd>0.973440</dd></div><div><dt>Recall@100</dt><dd>0.993625</dd></div></dl><div class="provenance">Recomputed from the exact ordered submission artifact.<br><code>python verify_submission.py</code><br><br>Artifact SHA-256<br><code>519fe7b0ad8bb4ae80f1da5192ceea067bc1c68b74cad6328ee7ac8a2de644d4</code></div><p class="dialog-note">These fixed metrics evaluate the dense retrieval pipeline on the test corpus. They do not measure router, AST, or version-retrieval accuracy. The live demo uses a separate 5,000-document APPS index; version history uses a controlled synthetic fixture.</p></dialog>
+<dialog id="benchmarkDialog" aria-labelledby="benchmarkTitle"><div class="dialog-head"><h2 id="benchmarkTitle">AppsRetrieval benchmark</h2><button class="icon-button" data-close aria-label="Close benchmark"><svg><use href="#i-close"/></svg></button></div><span class="benchmark-tag">GLOBAL / FIXED · NOT PER-QUERY</span><p class="dialog-note">Frozen 65% EmbeddingGemma / 35% Qwen fusion.<br>3,765 test queries · 8,765 corpus documents.</p><dl class="benchmark-grid"><div><dt>NDCG@10</dt><dd>0.853100</dd></div><div><dt>MRR@10</dt><dd>0.821803</dd></div><div><dt>MRR@100</dt><dd>0.824138</dd></div><div><dt>Recall@10</dt><dd>0.949535</dd></div><div><dt>Recall@20</dt><dd>0.973440</dd></div><div><dt>Recall@100</dt><dd>0.993625</dd></div></dl><div class="provenance">Recomputed from the exact ordered submission artifact.<br><code>python verify_submission.py</code><br><br>Artifact SHA-256<br><code>519fe7b0ad8bb4ae80f1da5192ceea067bc1c68b74cad6328ee7ac8a2de644d4</code></div><p class="dialog-note">These fixed metrics evaluate the dense retrieval pipeline on the test corpus. They do not measure router, AST, or version-retrieval accuracy. The active corpus size is shown below the search box. The default package contains 8,765 documents. The bundled Git history covers selected API-file revisions and supports commit selection.</p></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script>
 'use strict';
@@ -270,7 +277,7 @@ const examples = [
   ['Semantic', 'Find code that validates a tic-tac-toe board state'],
   ['Exact usage', 'which files import math?'],
   ['Structural', 'which functions call range before print?'],
-  ['Evolution', 'show binary search version history']
+  ['Evolution', 'show API version history']
 ];
 let responseData = null;
 let selectedIndex = 0;
@@ -367,6 +374,7 @@ function jumpToLine(line) {
   target.classList.add('jump');
   if (matchMedia('(max-width:760px)').matches) $('codePane').scrollIntoView({block:'start'});
 }
+function versionLabel(version) { return /^[a-f0-9]{40}$/.test(String(version)) ? String(version).slice(0, 12) : version; }
 function renderEvidence(item, route) {
   const evidence = Array.isArray(item.evidence) ? item.evidence : [];
   const timeline = Array.isArray(item.timeline) ? item.timeline : [];
@@ -379,7 +387,7 @@ function renderEvidence(item, route) {
       const line = Number(entry.line);
       return Number.isInteger(line) && line > 0 && line <= codeRows(item).length ? `<button class="evidence-link" data-evidence="${index}">${esc(label)}<span>Line ${line} ↗</span></button>` : `<p>${esc(label)}</p>`;
     }).join('') + '</div>';
-    if (route === 'exact_usage') content += '<p class="muted">Names are matched case-insensitively and may include partial matches. Check the evidence type and symbol against your question.</p>';
+    if (route === 'exact_usage') content += '<p class="muted">Names are case-sensitive and match symbol boundaries. Import and call questions are checked against their respective AST evidence; aliases are not fully resolved.</p>';
     if (route === 'structural') content += evidence.some(entry => entry?.type === 'call_order')
       ? '<p class="muted">These calls appear in this source-line order within the same scope. Branches and runtime execution order are not verified.</p>'
       : '<p class="muted">Static AST structure is shown here; the retrieved code has not been executed.</p>';
@@ -387,13 +395,15 @@ function renderEvidence(item, route) {
     content += '<p>Ranked by semantic similarity to your query using the frozen 65% EmbeddingGemma / 35% Qwen score fusion.</p>';
     if (responseData.execution?.reranker_triggered) content += '<p>The optional cross-encoder reranker was applied to this query.</p>';
   } else if (route === 'evolution') {
-    content += '<p>Retrieved from the version-aware index. This history is a <strong>controlled synthetic capability fixture</strong>, not historical APPS ground truth.</p>';
+    content += item.metadata?.commit
+      ? `<p>Retrieved from Git history for <strong>${esc(item.metadata.path)}</strong>. Historical code remains searchable even after deletion.</p>`
+      : '<p>Retrieved from supplied version records. The bundled binary-search history is a <strong>controlled synthetic capability fixture</strong>, not historical APPS ground truth.</p>';
   } else { content += '<p class="muted">No detailed AST evidence was returned for this result.</p>'; }
   content += `<div class="score-row"><span>${route === "semantic" && responseData.execution?.reranker_triggered ? "Reranked retrieval score" : scoreLabel(route)}</span><strong>${scoreText(item.score)}</strong></div>`;
   if (timeline.length) {
-    content += '<h2>Version lineage</h2><ol class="timeline">' + timeline.map(version => `<li><strong>${esc(version.version)}</strong>${esc(human(version.change_type))}${version.previous_similarity == null ? '' : `<br><span class="muted">Previous-version similarity ${scoreText(version.previous_similarity)}</span>`}</li>`).join('') + '</ol>';
+    content += '<h2>Version lineage</h2><ol class="timeline">' + timeline.map(version => `<li><strong title="${esc(version.version)}">${esc(versionLabel(version.version))}</strong>${esc(human(version.change_type))}${version.previous_similarity == null ? '' : `<br><span class="muted">Previous-version similarity ${scoreText(version.previous_similarity)}</span>`}</li>`).join('') + '</ol>';
   }
-  content += '<p class="muted">Scores describe this retrieval route; they are not probabilities or global benchmark metrics.</p>';
+  content += '<p class="muted">PRISM retrieves source; it does not verify correctness. Review code before reuse. Scores are not probabilities or global benchmark metrics.</p>';
   const steps = responseData.execution?.steps;
   if (Array.isArray(steps) && steps.length) content += `<details class="plan-details"><summary>View predefined route steps</summary><ol>${steps.map(step => `<li>${esc(step)}</li>`).join('')}</ol></details>`;
   $('evidenceCard').innerHTML = content; $('evidenceCard').hidden = false;
@@ -409,14 +419,14 @@ function selectResult(index) {
   $('codeLines').innerHTML = highlighted.map((line, i) => `<span class="code-line${evidenceLines.has(i+1) ? ' matched' : ''}" id="source-line-${i+1}"><span class="line-no" aria-hidden="true">${i+1}</span><span class="line-text">${line || ' '}</span></span>`).join('');
   $('codeLines').hidden = false; $('codeEmpty').hidden = true; $('fileStrip').hidden = false;
   $('lineCount').textContent = `· ${rows.length} lines`;
-  $('fileName').textContent = `${resultTitle(item)}${item.version ? ` · ${item.version}` : ''}`;
+  $('fileName').textContent = `${resultTitle(item)}${item.version ? ` · ${versionLabel(item.version)}` : ''}`;
   $('fileName').title = $('fileName').textContent;
   $('fileRank').textContent = `Result ${index+1} of ${responseData.results.length}`;
-  $('codeFooter').textContent = route === 'evolution' ? 'Controlled synthetic fixture · version history' : evidenceLines.size ? 'Highlighted lines · AST evidence' : route === 'semantic' ? 'Retrieved source · semantic similarity' : 'Retrieved source · inspect AST evidence';
+  $('codeFooter').textContent = route === 'evolution' ? (item.metadata?.commit ? 'Git commit history · historical source' : 'Supplied version history · bundled fixture by default') : evidenceLines.size ? 'Highlighted lines · AST evidence' : route === 'semantic' ? 'Retrieved source · semantic similarity' : 'Retrieved source · inspect AST evidence';
   $('copyButton').disabled = false; $('codeScroll').scrollTop = 0; $('codeScroll').scrollLeft = 0;
-  $('selectedPreview').innerHTML = `<article class="preview-card card"><div class="preview-head"><div>Python <span>· ${esc(resultId(item))}${item.version ? ` · ${esc(item.version)}` : ''}</span></div><button class="text-button" id="openCode">Expand code ↗</button></div><pre class="preview-code">${highlight(rows.slice(0,4).join('\n'))}${rows.length > 4 ? '\n<span class="tok-comment">…</span>' : ''}</pre></article>`;
+  $('selectedPreview').innerHTML = `<article class="preview-card card"><div class="preview-head"><div>Python <span>· ${esc(resultId(item))}${item.version ? ` · ${esc(versionLabel(item.version))}` : ''}</span></div><button class="text-button" id="openCode">Expand code ↗</button></div><pre class="preview-code">${highlight(rows.slice(0,4).join('\n'))}${rows.length > 4 ? '\n<span class="tok-comment">…</span>' : ''}</pre></article>`;
   $('openCode').addEventListener('click', () => { expandCode(true); $('codeLines').focus(); });
-  $('resultPicker').innerHTML = `<span class="result-picker-label">${responseData.results.length} results returned</span>` + responseData.results.map((result, i) => `<button class="result-tab" data-result="${i}" aria-pressed="${i === index}" aria-label="Open result ${i+1}: ${esc(resultId(result))}">#${i+1}</button>`).join('');
+  $('resultPicker').innerHTML = `<span class="result-picker-label">${responseData.results.length} result${responseData.results.length === 1 ? "" : "s"} returned</span>` + responseData.results.map((result, i) => `<button class="result-tab" data-result="${i}" aria-pressed="${i === index}" aria-label="Open result ${i+1}: ${esc(resultId(result))}">#${i+1}</button>`).join('');
   $('resultPicker').querySelectorAll('[data-result]').forEach(button => button.addEventListener('click', () => selectResult(Number(button.dataset.result))));
   renderEvidence(item, route);
 }
@@ -445,6 +455,7 @@ async function runSearch() {
   if (!query) { toast('Enter a question to search the codebase.'); $('query').focus(); return; }
   busy = true; responseData = null; clearCode(); expandCode(false);
   $('searchButton').disabled = true; $('newSearch').disabled = true;
+  $('versionScope').disabled = true; $('versionCommit').disabled = true;
   document.querySelectorAll('[data-example]').forEach(button => button.disabled = true);
   $('welcome').hidden = true; $('searchContent').hidden = false; $('answer').hidden = true;
   $('questionText').textContent = query; $('conversation').scrollTop = 0;
@@ -456,20 +467,25 @@ async function runSearch() {
   const controller = new AbortController();
   const requestTimer = setTimeout(() => controller.abort(), 180000);
   try {
-    const response = await fetch('/search', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query, top_k:5}), signal:controller.signal});
+    const response = await fetch('/search', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query, top_k:5, version_scope:$('versionScope').value, version_commit:$('versionScope').value === 'commit' ? $('versionCommit').value : null}), signal:controller.signal});
     const data = await response.json();
-    if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Search failed. Please try again.');
+    if (!response.ok) {
+      const error = new Error(typeof data.detail === 'string' ? data.detail : 'Search failed. Please check your request.');
+      error.status = response.status; throw error;
+    }
     renderResponse(data); $('message').hidden = true;
   } catch (error) {
     $('answer').hidden = true; clearCode();
-    $('emptyTitle').textContent = 'Search could not complete';
-    $('emptyDescription').textContent = 'Your query is still in the composer. Try again when the backend is ready.';
+    const needsRevision = error.status === 400 || error.status === 422;
+    $('emptyTitle').textContent = needsRevision ? 'Revise your request' : 'Search could not complete';
+    $('emptyDescription').textContent = needsRevision ? 'Your query is still in the composer. Choose a supported search or revise the request.' : 'Your query is still in the composer. Try again when the backend is ready.';
     $('message').className = 'message card error';
     $('message').textContent = error.name === 'AbortError' ? 'The search timed out. The backend may still be loading models. Try again shortly.' : `Could not complete the search. ${error.message}`;
-    $('codeFooter').textContent = 'Search unavailable · please retry';
+    $('codeFooter').textContent = needsRevision ? 'Request needs revision' : 'Search unavailable · please retry';
   } finally {
     clearTimeout(loadingTimer); clearTimeout(requestTimer); busy = false;
     $('searchButton').disabled = false; $('newSearch').disabled = false;
+    $('versionScope').disabled = false; $('versionCommit').disabled = false;
     document.querySelectorAll('[data-example]').forEach(button => button.disabled = false);
     $('workspace').setAttribute('aria-busy', 'false');
   }
@@ -479,6 +495,19 @@ $('query').addEventListener('keydown', event => {
   if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); runSearch(); }
 });
 
+$('versionScope').addEventListener('change', () => { $('versionCommit').hidden = $('versionScope').value !== 'commit'; });
+async function loadIndexMetadata() {
+  try {
+    const health = await (await fetch('/health')).json();
+    $('corpusCaption').textContent = `${Number(health.corpus_documents).toLocaleString()} corpus snippets · no generated code`;
+    const versions = await (await fetch('/versions')).json();
+    if (versions.commits.length) {
+      $('commitScopeOption').disabled = false;
+      $('versionCommit').innerHTML = [...versions.commits].reverse().map(commit => `<option value="${esc(commit)}">${esc(versionLabel(commit))}</option>`).join('');
+    }
+  } catch (_) { /* Search still reports API connectivity errors. */ }
+}
+loadIndexMetadata();
 </script>
 </body>
 </html>

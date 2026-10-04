@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from src.model_revisions import MODEL_REVISIONS
 from sentence_transformers import (
     SentenceTransformer,
     CrossEncoder,
@@ -96,6 +97,7 @@ class CodeRetriever:
                     "embeddinggemma_model"
                 ],
                 device=device,
+                revision=dense_cfg.get('embeddinggemma_revision') or MODEL_REVISIONS.get(dense_cfg['embeddinggemma_model']),
                 model_kwargs={
                     "torch_dtype": torch.float32
                 },
@@ -117,6 +119,8 @@ class CodeRetriever:
                 "qwen_model"
             ],
             device=device,
+            revision=dense_cfg.get('qwen_revision') or MODEL_REVISIONS.get(dense_cfg['qwen_model']),
+            model_kwargs={'torch_dtype': torch.float32},
         )
 
         self.qwen.max_seq_length = 4096

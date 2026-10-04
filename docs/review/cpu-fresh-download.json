@@ -1,0 +1,437 @@
+{
+  "platform": "macOS-26.5.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "python": "3.11.16",
+  "device": "cpu",
+  "model_cache": "existing local cache; no fresh-download claim",
+  "accuracy": "Not scored: these queries have no independent relevance labels",
+  "memory": "Process lifetime peak RSS; unavailable on Windows",
+  "records": [
+    {
+      "query": "Find an algorithm that merges overlapping intervals",
+      "route": "semantic",
+      "iteration": 0,
+      "elapsed_ms": 192758.91316599882,
+      "process_peak_rss_mb": 3002.484375,
+      "top_result": {
+        "rank": 1,
+        "id": "d1809",
+        "title": "",
+        "language": "PYTHON",
+        "score": 4.590873718261719
+      },
+      "result_ids": [
+        "d1809",
+        "d1610",
+        "d1944",
+        "d1882",
+        "d1998"
+      ]
+    },
+    {
+      "query": "Find an algorithm that merges overlapping intervals",
+      "route": "semantic",
+      "iteration": 1,
+      "elapsed_ms": 427.554791996954,
+      "process_peak_rss_mb": 3002.484375,
+      "top_result": {
+        "rank": 1,
+        "id": "d1809",
+        "title": "",
+        "language": "PYTHON",
+        "score": 4.590873718261719
+      },
+      "result_ids": [
+        "d1809",
+        "d1610",
+        "d1944",
+        "d1882",
+        "d1998"
+      ]
+    },
+    {
+      "query": "Find code that checks whether parentheses are balanced",
+      "route": "semantic",
+      "iteration": 0,
+      "elapsed_ms": 552.0421250039362,
+      "process_peak_rss_mb": 3004.078125,
+      "top_result": {
+        "rank": 1,
+        "id": "d3956",
+        "title": "",
+        "language": "PYTHON",
+        "score": 5.958380699157715
+      },
+      "result_ids": [
+        "d3956",
+        "d4097",
+        "d4158",
+        "d3196",
+        "d1780"
+      ]
+    },
+    {
+      "query": "Find code that checks whether parentheses are balanced",
+      "route": "semantic",
+      "iteration": 1,
+      "elapsed_ms": 576.3559580009314,
+      "process_peak_rss_mb": 3004.09375,
+      "top_result": {
+        "rank": 1,
+        "id": "d3956",
+        "title": "",
+        "language": "PYTHON",
+        "score": 5.958380699157715
+      },
+      "result_ids": [
+        "d3956",
+        "d4097",
+        "d4158",
+        "d3196",
+        "d1780"
+      ]
+    },
+    {
+      "query": "Find shortest paths in a weighted graph",
+      "route": "semantic",
+      "iteration": 0,
+      "elapsed_ms": 568.713459004357,
+      "process_peak_rss_mb": 3004.59375,
+      "top_result": {
+        "rank": 1,
+        "id": "d1770",
+        "title": "",
+        "language": "PYTHON",
+        "score": 6.565234661102295
+      },
+      "result_ids": [
+        "d1770",
+        "d4626",
+        "d3306",
+        "d1791",
+        "d258"
+      ]
+    },
+    {
+      "query": "Find shortest paths in a weighted graph",
+      "route": "semantic",
+      "iteration": 1,
+      "elapsed_ms": 557.435542003077,
+      "process_peak_rss_mb": 3004.609375,
+      "top_result": {
+        "rank": 1,
+        "id": "d1770",
+        "title": "",
+        "language": "PYTHON",
+        "score": 6.565234661102295
+      },
+      "result_ids": [
+        "d1770",
+        "d4626",
+        "d3306",
+        "d1791",
+        "d258"
+      ]
+    },
+    {
+      "query": "which files import collections?",
+      "route": "exact_usage",
+      "iteration": 0,
+      "elapsed_ms": 140.7057079995866,
+      "process_peak_rss_mb": 3033.6875,
+      "top_result": {
+        "id": "d1013",
+        "score": 1.0,
+        "evidence": [
+          {
+            "type": "import",
+            "name": "collections.defaultdict",
+            "line": 2
+          }
+        ],
+        "title": "",
+        "language": "PYTHON"
+      },
+      "result_ids": [
+        "d1013",
+        "d1014",
+        "d1026",
+        "d1035",
+        "d1036"
+      ]
+    },
+    {
+      "query": "which files import collections?",
+      "route": "exact_usage",
+      "iteration": 1,
+      "elapsed_ms": 5.0862079951912165,
+      "process_peak_rss_mb": 3033.703125,
+      "top_result": {
+        "id": "d1013",
+        "score": 1.0,
+        "evidence": [
+          {
+            "type": "import",
+            "name": "collections.defaultdict",
+            "line": 2
+          }
+        ],
+        "title": "",
+        "language": "PYTHON"
+      },
+      "result_ids": [
+        "d1013",
+        "d1014",
+        "d1026",
+        "d1035",
+        "d1036"
+      ]
+    },
+    {
+      "query": "which functions call sorted?",
+      "route": "exact_usage",
+      "iteration": 0,
+      "elapsed_ms": 15.356457995949313,
+      "process_peak_rss_mb": 3033.765625,
+      "top_result": {
+        "id": "d113",
+        "score": 1.0,
+        "evidence": [
+          {
+            "type": "call",
+            "name": "sorted",
+            "line": 38,
+            "function": "solve",
+            "class": null
+          }
+        ],
+        "title": "",
+        "language": "PYTHON"
+      },
+      "result_ids": [
+        "d113",
+        "d114",
+        "d1174",
+        "d1221",
+        "d1398"
+      ]
+    },
+    {
+      "query": "which functions call sorted?",
+      "route": "exact_usage",
+      "iteration": 1,
+      "elapsed_ms": 14.672582998173311,
+      "process_peak_rss_mb": 3033.78125,
+      "top_result": {
+        "id": "d113",
+        "score": 1.0,
+        "evidence": [
+          {
+            "type": "call",
+            "name": "sorted",
+            "line": 38,
+            "function": "solve",
+            "class": null
+          }
+        ],
+        "title": "",
+        "language": "PYTHON"
+      },
+      "result_ids": [
+        "d113",
+        "d114",
+        "d1174",
+        "d1221",
+        "d1398"
+      ]
+    },
+    {
+      "query": "which functions call range before print?",
+      "route": "structural",
+      "iteration": 0,
+      "elapsed_ms": 24.979666995932348,
+      "process_peak_rss_mb": 3033.78125,
+      "top_result": {
+        "id": "d3",
+        "score": 1.0,
+        "scope": "main",
+        "class": null,
+        "evidence": [
+          {
+            "type": "call_order",
+            "name": "range",
+            "line": 63,
+            "function": "main",
+            "class": null
+          },
+          {
+            "type": "call_order",
+            "name": "print",
+            "line": 71,
+            "function": "main",
+            "class": null
+          }
+        ],
+        "title": "",
+        "language": "PYTHON"
+      },
+      "result_ids": [
+        "d3",
+        "d4",
+        "d12",
+        "d26",
+        "d29"
+      ]
+    },
+    {
+      "query": "which functions call range before print?",
+      "route": "structural",
+      "iteration": 1,
+      "elapsed_ms": 23.092999996151775,
+      "process_peak_rss_mb": 3033.78125,
+      "top_result": {
+        "id": "d3",
+        "score": 1.0,
+        "scope": "main",
+        "class": null,
+        "evidence": [
+          {
+            "type": "call_order",
+            "name": "range",
+            "line": 63,
+            "function": "main",
+            "class": null
+          },
+          {
+            "type": "call_order",
+            "name": "print",
+            "line": 71,
+            "function": "main",
+            "class": null
+          }
+        ],
+        "title": "",
+        "language": "PYTHON"
+      },
+      "result_ids": [
+        "d3",
+        "d4",
+        "d12",
+        "d26",
+        "d29"
+      ]
+    },
+    {
+      "query": "find recursive functions",
+      "route": "structural",
+      "iteration": 0,
+      "elapsed_ms": 3.248624998377636,
+      "process_peak_rss_mb": 3033.78125,
+      "top_result": {
+        "id": "d1010",
+        "score": 2.0,
+        "evidence": [
+          {
+            "type": "recursive_function",
+            "name": "func",
+            "line": 10,
+            "class": null
+          },
+          {
+            "type": "recursive_function",
+            "name": "gcd",
+            "line": 4,
+            "class": null
+          }
+        ],
+        "title": "",
+        "language": "PYTHON"
+      },
+      "result_ids": [
+        "d1010",
+        "d1029",
+        "d1035",
+        "d1062",
+        "d1068"
+      ]
+    },
+    {
+      "query": "find recursive functions",
+      "route": "structural",
+      "iteration": 1,
+      "elapsed_ms": 2.3489170052926056,
+      "process_peak_rss_mb": 3033.796875,
+      "top_result": {
+        "id": "d1010",
+        "score": 2.0,
+        "evidence": [
+          {
+            "type": "recursive_function",
+            "name": "func",
+            "line": 10,
+            "class": null
+          },
+          {
+            "type": "recursive_function",
+            "name": "gcd",
+            "line": 4,
+            "class": null
+          }
+        ],
+        "title": "",
+        "language": "PYTHON"
+      },
+      "result_ids": [
+        "d1010",
+        "d1029",
+        "d1035",
+        "d1062",
+        "d1068"
+      ]
+    },
+    {
+      "query": "show binary search version history",
+      "route": "evolution",
+      "iteration": 0,
+      "elapsed_ms": 50.73841699777404,
+      "process_peak_rss_mb": 3037.96875,
+      "top_result": {
+        "rank": 1,
+        "logical_id": "binary_search",
+        "version": "v3",
+        "score": 0.31255728006362915,
+        "change_type": "substantial_update",
+        "previous_similarity": 0.39285714285714285,
+        "metadata": {}
+      },
+      "result_ids": [
+        "binary_search",
+        "binary_search",
+        "binary_search",
+        "factorial"
+      ]
+    },
+    {
+      "query": "show binary search version history",
+      "route": "evolution",
+      "iteration": 1,
+      "elapsed_ms": 38.503584000864066,
+      "process_peak_rss_mb": 3037.96875,
+      "top_result": {
+        "rank": 1,
+        "logical_id": "binary_search",
+        "version": "v3",
+        "score": 0.31255728006362915,
+        "change_type": "substantial_update",
+        "previous_similarity": 0.39285714285714285,
+        "metadata": {}
+      },
+      "result_ids": [
+        "binary_search",
+        "binary_search",
+        "binary_search",
+        "factorial"
+      ]
+    }
+  ]
+}

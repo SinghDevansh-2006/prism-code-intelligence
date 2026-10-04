@@ -1,0 +1,34 @@
+{
+  "events": [
+    {
+      "commit": "52af61b60c221907831a2afefcd0b5a58e15e4ea",
+      "path": "api.py",
+      "operation": "added",
+      "change_type": "initial",
+      "previous_similarity": null,
+      "lineage_index_ms": 1.7366669999319129,
+      "embedding_ms": 1520.6462499991176,
+      "persistence_ms": 0.6707080028718337,
+      "total_update_ms": 1523.069458999089,
+      "total_versions": 1
+    },
+    {
+      "commit": "b9c588842c00b88edc933a453e19c1f50c5d896f",
+      "path": "api.py",
+      "operation": "modified",
+      "change_type": "near_duplicate_update",
+      "previous_similarity": 0.8289473684210527,
+      "lineage_index_ms": 2.576999999291729,
+      "embedding_ms": 570.7837080044555,
+      "persistence_ms": 0.6935420024092309,
+      "total_update_ms": 574.0852909948444,
+      "total_versions": 2
+    }
+  ],
+  "stats": {
+    "logical_snippets": 1,
+    "versions": 2,
+    "embedding_file_bytes": 6144,
+    "bytes_per_version": 3072
+  }
+}

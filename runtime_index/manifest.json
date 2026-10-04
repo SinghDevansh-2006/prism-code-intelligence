@@ -1,0 +1,14 @@
+{
+  "corpus_documents": 8765,
+  "parsed_documents": 8691,
+  "corpus_revision": "f22508f96b7a36c2415181ed8bb76f76e04ae2d5",
+  "embeddings": "Reused supplied embedding arrays; this build performs no new inference",
+  "sha256": {
+    "config.json": "ca2c8133b56174b7a3568a7f3e609a8dc79bf1c6a265ca41adcb98519075fb97",
+    "corpus.jsonl": "7f882e24011ff05a0cc69c623d7f442d7cda27f739953d89ad4527028f53b0a8",
+    "qwen_documents.npy": "83330ec3e6088da6d76889cc168c3c59c5c7a03bc4a88b1c0f4144df0ceaed77",
+    "document_ids.json": "6138b742aa9a96344ccdf5edeaf17d83a58b703ba272b1c49a539812f45dab93",
+    "structural_index.jsonl": "a50d3a2b6e42fd2b8a3c128dd58319fcb59521d2e088e9016924d285c3ef96e3",
+    "embeddinggemma_documents.npy": "8d8eeb7cf5d5529d9ce0ec7a7ac3174499dc3eb6aa8bafd97b0176fa4ff39d63"
+  }
+}

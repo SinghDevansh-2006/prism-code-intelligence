@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 
 from src.query_router import route_query
@@ -42,33 +43,25 @@ class StructuralSearchEngine:
         if not name:
             return False
 
-        name = name.lower()
-        term = term.lower()
-
         return (
             name == term
             or name.endswith("." + term)
-            or term in name
         )
 
     def _matching_lines(
         self,
         record,
         term,
+        categories=None,
     ):
         matches = []
 
-        for category in [
-            "functions",
-            "classes",
-            "imports",
-            "calls",
-        ]:
+        for category in (categories or ["functions", "classes", "imports", "calls"]):
             for item in record[category]:
                 if self._matches(
                     item["name"],
                     term
-                ):
+                ) or (category == "imports" and item["name"].startswith(term + ".")):
                     evidence = {
                         "type":
                             category[:-1],
@@ -106,6 +99,8 @@ class StructuralSearchEngine:
         self,
         terms,
         top_k=20,
+        categories=None,
+        require_function=False,
     ):
         results = []
 
@@ -117,9 +112,12 @@ class StructuralSearchEngine:
                 matches = (
                     self._matching_lines(
                         record,
-                        term
+                        term, categories=categories
                     )
                 )
+
+                if require_function:
+                    matches = [m for m in matches if m.get("function") is not None]
 
                 if matches:
                     matched_terms += 1
@@ -127,7 +125,7 @@ class StructuralSearchEngine:
                         matches
                     )
 
-                else:
+                elif categories is None:
                     identifier_match = any(
                         self._matches(
                             identifier,
@@ -151,7 +149,7 @@ class StructuralSearchEngine:
                             }
                         )
 
-            if matched_terms == 0:
+            if matched_terms == 0 or (categories is not None and matched_terms != len(terms)):
                 continue
 
             score = (
@@ -398,6 +396,9 @@ class StructuralSearchEngine:
                 require_function=
                     require_function,
             )
+
+        if not any(term in lowered for term in ("recursive", "recursion", "nested loop")):
+            raise ValueError("Supported structural queries cover recursion, nested loops, or two named calls before/after each other; call/dependency graphs are not implemented.")
 
         results = []
 
@@ -658,9 +659,14 @@ class StructuralSearchEngine:
             plan.route
             == "exact_usage"
         ):
+            categories = None
+            if re.search(r"\bimports?\b", query, re.I):
+                categories = ["imports"]
+            elif re.search(r"\bcalls?\b", query, re.I):
+                categories = ["calls"]
             matches = self.exact_usage(
-                plan.extracted_terms,
-                top_k=top_k,
+                plan.extracted_terms, top_k=top_k, categories=categories,
+                require_function=categories == ["calls"] and bool(re.search(r"\b(functions?|methods?)\b", query, re.I)),
             )
 
         elif (

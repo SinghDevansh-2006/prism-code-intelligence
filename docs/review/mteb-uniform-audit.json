@@ -1,0 +1,69 @@
+{
+  "verified_on": "2026-10-03",
+  "status": "Uniform float32 CPU arrays verified; all test queries rescored with mteb.evaluate",
+  "corpus_documents": 8765,
+  "test_queries": 3765,
+  "predictions_per_query": 1000,
+  "dataset_revision": "f22508f96b7a36c2415181ed8bb76f76e04ae2d5",
+  "array_checks": {
+    "embeddinggemma_documents.npy": {
+      "shape": [
+        8765,
+        768
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "norm_min": 0.9999997615814209,
+      "norm_max": 1.000000238418579,
+      "sha256": "8d8eeb7cf5d5529d9ce0ec7a7ac3174499dc3eb6aa8bafd97b0176fa4ff39d63"
+    },
+    "embeddinggemma_queries.npy": {
+      "shape": [
+        3765,
+        768
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "norm_min": 0.9999997615814209,
+      "norm_max": 1.000000238418579,
+      "sha256": "01a62db106172ccc907617678623ff9ca715a9880fb696f51334258fa3e055be"
+    },
+    "qwen_documents.npy": {
+      "shape": [
+        8765,
+        1024
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "norm_min": 0.9999997615814209,
+      "norm_max": 1.000000238418579,
+      "sha256": "83330ec3e6088da6d76889cc168c3c59c5c7a03bc4a88b1c0f4144df0ceaed77"
+    },
+    "qwen_queries.npy": {
+      "shape": [
+        3765,
+        1024
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "norm_min": 0.9999998211860657,
+      "norm_max": 1.000000238418579,
+      "sha256": "9fd0187e641d807b0c23b6651314f751a489a1a811c26d3a3b9395b971991305"
+    }
+  },
+  "unchanged_reused_rows_and_arrays_verified": true,
+  "software_versions": {
+    "torch": "2.14.0",
+    "transformers": "5.17.0",
+    "sentence-transformers": "6.1.0",
+    "numpy": "2.4.6",
+    "mteb": "2.21.6"
+  },
+  "evaluation_sha256": {
+    "provenance.json": "dd860f1c6696d2bc407ba8adf1f39d94a850fe7856ec265acf5ba03b2ebce9b0",
+    "AppsRetrieval_predictions.json": "ddb2a78ee88b38e84408e9c76a6b7bd08f4f231e88b4f6ea8d5f2f841776a4f7",
+    "appsretrieval_results.json": "6d4a80209cd09e1924fec4e55b460d2817487f98575cdc53454a669ebebe222d"
+  },
+  "method": "Fresh CPU generation from preceding run, followed by explicit float32 regeneration of all 256 affected Qwen document rows; all verified float32 arrays rescored. Evaluation provenance says cached because this final scoring stage consumes these corrected arrays. No original submitted embedding arrays were used.",
+  "timing_note": "Final scoring time excludes preceding inference and repair; no total single-run CPU timing is claimed."
+}

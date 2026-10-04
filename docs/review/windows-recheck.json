@@ -1,0 +1,283 @@
+{
+  "date": "2026-10-04",
+  "status": "PASS: targeted Windows recheck",
+  "candidate_sha256": "cb77efdbc0230b0342b6285770b687a5af856170776940559a0f079f9a002b72",
+  "report_sha256": "867acf8ec4420b181d175688f50b7b1030f3d26d8d9eb1327700f56d003b87ee",
+  "evidence_zip_sha256": "569a06e93fbf98732d6c994c60804364f152a993f6e613b727bdcfb6f3fc5c6e",
+  "hardware": {
+    "cpu": "Intel Core i7-13650HX",
+    "ram_gib": 15.78,
+    "windows_build": "26300.9550",
+    "python": "3.11.0 64-bit"
+  },
+  "manifest_files_matched": 157,
+  "adapter_tests_passed": 4,
+  "total_tests_passed": 23,
+  "winerror32": false,
+  "corpus_documents": 8765,
+  "routes_verified": [
+    "semantic",
+    "exact_usage",
+    "structural",
+    "evolution"
+  ],
+  "cached_models": true,
+  "source_modified": false,
+  "limits": [
+    "No fresh model download or authentication",
+    "No full benchmark rerun",
+    "Launcher not retested; Uvicorn entry point used",
+    "No Docker or GitHub CI run",
+    "Separate hardware supported by observed CPU; physical ownership not independently attested"
+  ],
+  "source_evidence_checks": {
+    "imports": [
+      {
+        "id": "d1013",
+        "pass": true,
+        "evidence": [
+          {
+            "type": "import",
+            "name": "collections.defaultdict",
+            "line": 2
+          }
+        ],
+        "source_lines": {
+          "2": "from collections import defaultdict"
+        }
+      },
+      {
+        "id": "d1014",
+        "pass": true,
+        "evidence": [
+          {
+            "type": "import",
+            "name": "collections.defaultdict",
+            "line": 2
+          }
+        ],
+        "source_lines": {
+          "2": "from collections import defaultdict"
+        }
+      },
+      {
+        "id": "d1026",
+        "pass": true,
+        "evidence": [
+          {
+            "type": "import",
+            "name": "collections.defaultdict",
+            "line": 1
+          },
+          {
+            "type": "import",
+            "name": "collections.deque",
+            "line": 1
+          }
+        ],
+        "source_lines": {
+          "1": "from collections import defaultdict as dd,deque as dq"
+        }
+      },
+      {
+        "id": "d1035",
+        "pass": true,
+        "evidence": [
+          {
+            "type": "import",
+            "name": "collections.defaultdict",
+            "line": 7
+          }
+        ],
+        "source_lines": {
+          "7": "from collections import defaultdict"
+        }
+      },
+      {
+        "id": "d1036",
+        "pass": true,
+        "evidence": [
+          {
+            "type": "import",
+            "name": "collections.namedtuple",
+            "line": 2
+          }
+        ],
+        "source_lines": {
+          "2": "from collections import namedtuple"
+        }
+      }
+    ],
+    "structural": [
+      {
+        "id": "d3",
+        "pass": true,
+        "evidence": [
+          {
+            "type": "call_order",
+            "name": "range",
+            "line": 63,
+            "function": "main",
+            "class": null
+          },
+          {
+            "type": "call_order",
+            "name": "print",
+            "line": 71,
+            "function": "main",
+            "class": null
+          }
+        ],
+        "source_lines": {
+          "63": "    for i in range(1, n):",
+          "71": "    print(*ans)"
+        }
+      },
+      {
+        "id": "d4",
+        "pass": true,
+        "evidence": [
+          {
+            "type": "call_order",
+            "name": "range",
+            "line": 6,
+            "function": "solve",
+            "class": null
+          },
+          {
+            "type": "call_order",
+            "name": "print",
+            "line": 8,
+            "function": "solve",
+            "class": null
+          }
+        ],
+        "source_lines": {
+          "6": "    for i in range(n - k - 1, n):",
+          "8": "    print(ans)"
+        }
+      },
+      {
+        "id": "d12",
+        "pass": true,
+        "evidence": [
+          {
+            "type": "call_order",
+            "name": "range",
+            "line": 9,
+            "function": "calcul",
+            "class": null
+          },
+          {
+            "type": "call_order",
+            "name": "print",
+            "line": 36,
+            "function": "calcul",
+            "class": null
+          }
+        ],
+        "source_lines": {
+          "9": "    for k in range(len(s1)) :",
+          "36": "        print(c, \"ok\")"
+        }
+      },
+      {
+        "id": "d26",
+        "pass": true,
+        "evidence": [
+          {
+            "type": "call_order",
+            "name": "range",
+            "line": 32,
+            "function": "main",
+            "class": null
+          },
+          {
+            "type": "call_order",
+            "name": "print",
+            "line": 71,
+            "function": "main",
+            "class": null
+          }
+        ],
+        "source_lines": {
+          "32": "    for _ in range(int(input())):",
+          "71": "        print(*nans)"
+        }
+      },
+      {
+        "id": "d29",
+        "pass": true,
+        "evidence": [
+          {
+            "type": "call_order",
+            "name": "range",
+            "line": 33,
+            "function": "solve",
+            "class": null
+          },
+          {
+            "type": "call_order",
+            "name": "print",
+            "line": 36,
+            "function": "solve",
+            "class": null
+          }
+        ],
+        "source_lines": {
+          "33": "    for i in range(n):",
+          "36": "    print('Yes')"
+        }
+      }
+    ],
+    "versions": [
+      {
+        "case": "history-latest",
+        "pass": true,
+        "result_versions": [
+          "b9c588842c00b88edc933a453e19c1f50c5d896f"
+        ],
+        "expected": {
+          "api.py": "b9c588842c00b88edc933a453e19c1f50c5d896f"
+        }
+      },
+      {
+        "case": "history-commit-52af61b6",
+        "pass": true,
+        "result_versions": [
+          "52af61b60c221907831a2afefcd0b5a58e15e4ea"
+        ],
+        "expected": {
+          "api.py": "52af61b60c221907831a2afefcd0b5a58e15e4ea"
+        }
+      },
+      {
+        "case": "history-commit-094317cd",
+        "pass": true,
+        "result_versions": [
+          "b9c588842c00b88edc933a453e19c1f50c5d896f"
+        ],
+        "expected": {
+          "api.py": "b9c588842c00b88edc933a453e19c1f50c5d896f"
+        }
+      }
+    ],
+    "all_versions": {
+      "count": 2,
+      "versions": [
+        "52af61b60c221907831a2afefcd0b5a58e15e4ea",
+        "b9c588842c00b88edc933a453e19c1f50c5d896f"
+      ]
+    },
+    "package_after_tests": {
+      "total": 157,
+      "changed": []
+    },
+    "served_html_matches_candidate": true
+  },
+  "test_exit_codes": {
+    "pip_check_exit": 0,
+    "suite_exit": 0,
+    "adapter_exit": 0
+  }
+}

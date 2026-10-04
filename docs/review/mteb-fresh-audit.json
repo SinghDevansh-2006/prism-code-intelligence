@@ -1,0 +1,95 @@
+{
+  "verified_on": "2026-10-03",
+  "dataset_revision": "f22508f96b7a36c2415181ed8bb76f76e04ae2d5",
+  "mteb_version": "2.21.6",
+  "corpus_documents": 8765,
+  "test_queries": 3765,
+  "predictions_per_query": 1000,
+  "array_checks": {
+    "embeddinggemma_documents.npy": {
+      "shape": [
+        8765,
+        768
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "norm_min": 0.9999997615814209,
+      "norm_max": 1.000000238418579,
+      "rows_outside_unit_norm_tolerance_1e4": 0
+    },
+    "embeddinggemma_queries.npy": {
+      "shape": [
+        3765,
+        768
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "norm_min": 0.9999997615814209,
+      "norm_max": 1.000000238418579,
+      "rows_outside_unit_norm_tolerance_1e4": 0
+    },
+    "qwen_documents.npy": {
+      "shape": [
+        8765,
+        1024
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "norm_min": 0.9980885982513428,
+      "norm_max": 1.0038015842437744,
+      "rows_outside_unit_norm_tolerance_1e4": 243
+    },
+    "qwen_queries.npy": {
+      "shape": [
+        3765,
+        1024
+      ],
+      "dtype": "float32",
+      "finite": true,
+      "norm_min": 0.9999998211860657,
+      "norm_max": 1.000000238418579,
+      "rows_outside_unit_norm_tolerance_1e4": 0
+    }
+  },
+  "sha256": {
+    "AppsRetrieval_predictions.json": "f2b2934d94fb1c6cd3dcb9709f85b045e736a88b00e6e75b646bab0324855b49",
+    "appsretrieval_results.json": "a3139c4b40695076f82085f88dde4be03df63108dd749184e6c4fbea51687fb7",
+    "document_ids.json": "1bcfa382363d941616759be49d3ea0c13679a4fd4deff770ed135d75ebc4a186",
+    "embeddinggemma_documents.npy": "8d8eeb7cf5d5529d9ce0ec7a7ac3174499dc3eb6aa8bafd97b0176fa4ff39d63",
+    "embeddinggemma_queries.npy": "01a62db106172ccc907617678623ff9ca715a9880fb696f51334258fa3e055be",
+    "provenance.json": "c31678bb64eb5f387efd1bc4094f4c72a08b366dde59325542cbd1464f5f9432",
+    "query_ids.json": "15b139d3af01dd12f29bb4be4cf615304522c98250c80c6ebd7999ce697ac625",
+    "qwen_documents.npy": "55093b40f139716deeb74e4c49dfcb6a8d6e819f0f9a7479b960c3a5d04d82cf",
+    "qwen_queries.npy": "9fd0187e641d807b0c23b6651314f751a489a1a811c26d3a3b9395b971991305"
+  },
+  "checkpoint_manifests": {
+    "checkpoints/qwen_documents.json": {
+      "signature": "8dcf0eae3bed9a89ed010038d898f9f6c02d3fc019d78109e8bd7e9ee390b84a",
+      "model_revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+      "rows": 8765
+    },
+    "checkpoints/embeddinggemma_documents.json": {
+      "signature": "cb70b47bfad1de7039e1e84d67df16dc94a5b6fd52cc7b9fbf43ca8550c13ab1",
+      "model_revision": "57c266a740f537b4dc058e1b0cda161fd15afa75",
+      "rows": 8765
+    },
+    "checkpoints/embeddinggemma_queries.json": {
+      "signature": "91d4b86b521bc3e63c9a2b0876d606f3486a7f432f06a09f591d1c30f197e979",
+      "model_revision": "57c266a740f537b4dc058e1b0cda161fd15afa75",
+      "rows": 3765
+    },
+    "checkpoints-qwen-batch1/qwen_documents.json": {
+      "signature": "72a9dacbff00fd01a0f07d745c418bf45934ff5a018ec6143c70710a3efb6840",
+      "model_revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+      "rows": 8765
+    },
+    "checkpoints-qwen-batch1/qwen_queries.json": {
+      "signature": "ac55ece1ce18faaa7fd452f3b7cd60b736759a0935e846ec780b5d28d820199a",
+      "model_revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+      "rows": 3765
+    }
+  },
+  "precision_caveat": "Qwen document checkpoints for the first 256 length-sorted rows were generated before explicit float32 was added. Their norms range 0.998089\u20131.003802, consistent with lower-precision normalization. Later Qwen documents and all Qwen queries used explicit float32. This completed run mixes inference precision settings; it is not a uniform-precision reproduction. Checkpoint signatures did not include dtype. A consistent-precision rerun is required to remove this limitation.",
+  "timing_note": "7580.251 seconds covers only the final resumed invocation. Earlier CPU inference and interruptions are excluded. This is not total end-to-end regeneration time.",
+  "metrics_note": "Fresh CPU inference, with checkpoints reused from this same regeneration. No original embedding cache supplied. Slight differences from frozen order are not evidence of a new algorithmic improvement."
+}

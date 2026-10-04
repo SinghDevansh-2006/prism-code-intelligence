@@ -148,9 +148,6 @@ def _extract_terms(query):
         if lowered in STOPWORDS:
             continue
 
-        if len(term) <= 1:
-            continue
-
         if term not in seen:
             seen.add(term)
             result.append(term)

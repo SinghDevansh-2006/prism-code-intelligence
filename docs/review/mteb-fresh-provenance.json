@@ -1,0 +1,14 @@
+{
+  "method": "mteb.evaluate with custom SearchProtocol",
+  "fresh_embedding_inference": true,
+  "elapsed_seconds": 7580.25146670801,
+  "device": "cpu",
+  "timing_scope": "This invocation only; interrupted inference time is excluded and matching checkpoints may be reused.",
+  "batch_sizes": {
+    "gemma": 8,
+    "qwen": 1
+  },
+  "fusion": ".65*zscore(Gemma cosine)+.35*zscore(Qwen cosine), across full corpus",
+  "cached_embedding_sha256": {},
+  "limitation": "Local CPU run; no cross-platform claim."
+}
